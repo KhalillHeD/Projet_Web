@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search, Package, AlertTriangle } from 'lucide-react';
 import { Sidebar } from '../layouts/Sidebar';
 import { Breadcrumb } from '../layouts/Breadcrumb';
@@ -6,35 +6,168 @@ import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
 import { Input } from '../components/Input';
-import { mockBusinesses, mockStockItems } from '../data/mockData';
+import { mockBusinesses } from '../data/mockData';
 
 interface StockProps {
   businessId: string;
   onNavigate: (path: string) => void;
 }
 
+// Interface pour les produits Django
+interface DjangoProduct {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  category_name: string;
+  is_available: boolean;
+  image: string | null;
+  created_at: string;
+}
+
+// Interface adaptée pour le frontend
+interface StockItem {
+  id: string;
+  businessId: string;
+  name: string;
+  sku: string;
+  category: string;
+  quantity: number;
+  minQuantity: number;
+  price: number;
+  lastUpdated: string;
+}
+
 export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [products, setProducts] = useState<DjangoProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Récupérer les produits depuis l'API Django
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // ⭐ FORMAT JSON EXPLICITE ⭐
+        const response = await fetch('http://127.0.0.1:8000/api/products/?format=json', {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Erreur API: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ Données API reçues:', data);
+        
+        // Data est directement le tableau de produits
+        if (Array.isArray(data)) {
+          setProducts(data);
+          console.log(`✅ ${data.length} produits chargés`);
+        } else {
+          console.error('❌ Format inattendu:', data);
+          setProducts([]);
+        }
+        
+      } catch (error) {
+        console.error('❌ Erreur API:', error);
+        setError('Impossible de charger les produits.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const business = mockBusinesses.find((b) => b.id === businessId);
-  const stockItems = mockStockItems.filter((s) => s.businessId === businessId);
+  
+  // Adapter les données Django au format attendu par le composant
+  const adaptedStockItems: StockItem[] = products.map(product => ({
+    id: product.id.toString(),
+    businessId: businessId,
+    name: product.name,
+    sku: `PROD-${product.id.toString().padStart(4, '0')}`,
+    category: product.category_name,
+    quantity: product.is_available ? Math.floor(Math.random() * 50) + 1 : 0, // Quantité aléatoire pour la démo
+    minQuantity: 5,
+    price: parseFloat(product.price),
+    lastUpdated: new Date(product.created_at).toLocaleDateString('fr-FR')
+  }));
 
-  const filteredItems = stockItems.filter((item) =>
+  const filteredItems = adaptedStockItems.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getStockStatus = (item: typeof stockItems[0]) => {
+  const getStockStatus = (item: StockItem) => {
     const percentage = (item.quantity / item.minQuantity) * 100;
     if (percentage <= 50) return { label: 'Critical', color: 'from-[#EF5350] to-[#e53935]', bg: 'bg-[#EF5350]/10', text: 'text-[#EF5350]' };
     if (percentage <= 100) return { label: 'Low', color: 'from-[#FFA726] to-[#f59518]', bg: 'bg-[#FFA726]/10', text: 'text-[#FFA726]' };
     return { label: 'Good', color: 'from-[#16C47F] to-[#13ad70]', bg: 'bg-[#16C47F]/10', text: 'text-[#16C47F]' };
   };
 
-  const lowStockItems = stockItems.filter(item => item.quantity < item.minQuantity);
+  const lowStockItems = adaptedStockItems.filter(item => item.quantity < item.minQuantity);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5F8FF]">
+        <Sidebar
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+          currentPath={`/business/${businessId}/stock`}
+          onNavigate={onNavigate}
+          businessId={businessId}
+        />
+        <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'} p-8`}>
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1A6AFF] mx-auto mb-4"></div>
+                <p className="text-gray-600">Chargement des produits depuis l'API...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#F5F8FF]">
+        <Sidebar
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+          currentPath={`/business/${businessId}/stock`}
+          onNavigate={onNavigate}
+          businessId={businessId}
+        />
+        <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'} p-8`}>
+          <div className="max-w-7xl mx-auto">
+            <Card className="bg-[#EF5350]/10 border-2 border-[#EF5350]/20">
+              <div className="flex items-start gap-3">
+                <AlertTriangle size={24} className="text-[#EF5350] flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="font-bold text-[#0B1A33] mb-2">Erreur de connexion</h3>
+                  <p className="text-gray-600 mb-3">{error}</p>
+                  <p className="text-sm text-gray-500">
+                    Assurez-vous que le serveur Django est démarré sur http://127.0.0.1:8000
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F8FF]">
@@ -59,7 +192,12 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
               onNavigate={onNavigate}
             />
             <div className="flex items-center justify-between mt-4">
-              <h1 className="text-3xl font-bold text-[#0B1A33]">Stock Management</h1>
+              <div>
+                <h1 className="text-3xl font-bold text-[#0B1A33]">Stock Management</h1>
+                <p className="text-gray-600 mt-2">
+                  {products.length} produit(s) chargé(s) depuis l'API Django
+                </p>
+              </div>
               <Button variant="primary" icon={<Plus size={20} />} onClick={() => setShowModal(true)}>
                 Add Stock Item
               </Button>
@@ -69,7 +207,7 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <Card>
               <p className="text-sm text-gray-600 mb-2">Total Items</p>
-              <p className="text-3xl font-bold text-[#0B1A33]">{stockItems.length}</p>
+              <p className="text-3xl font-bold text-[#0B1A33]">{adaptedStockItems.length}</p>
             </Card>
             <Card>
               <p className="text-sm text-gray-600 mb-2">Low Stock Alerts</p>
@@ -78,7 +216,7 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
             <Card>
               <p className="text-sm text-gray-600 mb-2">Total Value</p>
               <p className="text-3xl font-bold text-[#16C47F]">
-                ${stockItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toLocaleString()}
+                ${adaptedStockItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toLocaleString()}
               </p>
             </Card>
           </div>
@@ -168,9 +306,13 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
             })}
           </div>
 
-          {filteredItems.length === 0 && (
+          {filteredItems.length === 0 && !loading && (
             <Card className="text-center py-12">
-              <p className="text-gray-600 text-lg">No stock items found</p>
+              <Package size={48} className="text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 text-lg mb-2">Aucun produit trouvé</p>
+              <p className="text-gray-500 text-sm">
+                {searchTerm ? 'Aucun résultat pour votre recherche.' : 'Aucun produit dans la base de données.'}
+              </p>
             </Card>
           )}
         </div>

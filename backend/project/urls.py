@@ -15,8 +15,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-
+from django.urls import path, include  # Ajouter include ici
+from django.shortcuts import redirect
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),  # Ajouter cette ligne
+    path('', lambda request: redirect('/api/')),  # Redirige la racine vers l'API
 ]
