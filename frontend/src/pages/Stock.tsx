@@ -53,7 +53,6 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
         setLoading(true);
         setError(null);
         
-        // ⭐ FORMAT JSON EXPLICITE ⭐
         const response = await fetch('http://127.0.0.1:8000/api/products/?format=json', {
           headers: {
             'Accept': 'application/json',
@@ -68,7 +67,6 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
         const data = await response.json();
         console.log('✅ Données API reçues:', data);
         
-        // Data est directement le tableau de produits
         if (Array.isArray(data)) {
           setProducts(data);
           console.log(`✅ ${data.length} produits chargés`);
@@ -84,6 +82,10 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
         setLoading(false);
       }
     };
+
+    fetchProducts(); // ⭐ APPEL DE LA FONCTION ⭐
+    
+  }, []); // ⭐ ACCOLADE FERMANTE DU USEEFFECT ⭐
 
   const business = mockBusinesses.find((b) => b.id === businessId);
   
