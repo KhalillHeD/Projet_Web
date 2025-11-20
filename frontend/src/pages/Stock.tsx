@@ -22,6 +22,7 @@ interface DjangoProduct {
   category_name: string;
   is_available: boolean;
   image: string | null;
+  quantity?: number;
   created_at: string;
 }
 
@@ -45,48 +46,101 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
   const [products, setProducts] = useState<DjangoProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [productQuantities, setProductQuantities] = useState<{[key: number]: number}>(() => {
+    const saved = localStorage.getItem('productQuantities');
+    return saved ? JSON.parse(saved) : {};
+  });
+  const updateProductQuantity = (productId: number, quantity: number) => {
+    setProductQuantities(prev => {
+      const newQuantities = {
+        ...prev,
+        [productId]: quantity
+      };
+      // ⭐ SAUVEGARDE AUTOMATIQUE DANS LOCALSTORAGE
+      localStorage.setItem('productQuantities', JSON.stringify(newQuantities));
+      return newQuantities;
+    });
+  };  
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch('http://127.0.0.1:8000/api/products/?format=json', {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('✅ Données API reçues:', data);
+      
+      if (Array.isArray(data)) {
+        setProducts(data);
+        console.log(`✅ ${data.length} produits chargés`);
+      } else {
+        console.error('❌ Format inattendu:', data);
+        setProducts([]);
+      }
+      
+    } catch (error) {
+      console.error('❌ Erreur API:', error);
+      setError('Impossible de charger les produits.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Récupérer les produits depuis l'API Django
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await fetch('http://127.0.0.1:8000/api/products/?format=json', {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Erreur API: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('✅ Données API reçues:', data);
-        
-        if (Array.isArray(data)) {
-          setProducts(data);
-          console.log(`✅ ${data.length} produits chargés`);
-        } else {
-          console.error('❌ Format inattendu:', data);
-          setProducts([]);
-        }
-        
-      } catch (error) {
-        console.error('❌ Erreur API:', error);
-        setError('Impossible de charger les produits.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    
 
     fetchProducts(); // ⭐ APPEL DE LA FONCTION ⭐
     
   }, []); // ⭐ ACCOLADE FERMANTE DU USEEFFECT ⭐
+  // Fonction pour ajouter un nouveau produit
+const handleAddProduct = async (formData: any) => {
+  try { const name = formData.get('name');
+    const description = formData.get('description');
+    const price = formData.get('price');
+    const quantity = formData.get('quantity');
+    const productData = {
+      name: name,
+      description: description,
+      price: price,
+      category: 1,
+      is_available: true,
+      initial_quantity: quantity 
+    };
 
+    console.log('📤 Envoi du produit:', productData);
+
+    const response = await fetch('http://127.0.0.1:8000/api/products/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(productData),
+    });
+
+    if (response.ok) {
+      const newProduct = await response.json();
+      
+      // ⭐ UTILISEZ LA NOUVELLE FONCTION
+      updateProductQuantity(newProduct.id, quantity);
+      
+      await fetchProducts();
+      setShowModal(false);
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+};
   const business = mockBusinesses.find((b) => b.id === businessId);
   
   // Adapter les données Django au format attendu par le composant
@@ -96,8 +150,8 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
     name: product.name,
     sku: `PROD-${product.id.toString().padStart(4, '0')}`,
     category: product.category_name,
-    quantity: product.is_available ? Math.floor(Math.random() * 50) + 1 : 0, // Quantité aléatoire pour la démo
-    minQuantity: 5,
+    quantity: productQuantities[product.id] || 10,
+    minQuantity: 0,
     price: parseFloat(product.price),
     lastUpdated: new Date(product.created_at).toLocaleDateString('fr-FR')
   }));
@@ -321,23 +375,25 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
       </div>
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Add Stock Item" size="md">
-        <form className="space-y-4">
-          <Input label="Item Name" placeholder="Enter item name" required />
-          <Input label="SKU" placeholder="Enter SKU" required />
-          <Input label="Quantity" type="number" placeholder="0" required />
-          <Input label="Min Quantity" type="number" placeholder="0" required />
-          <Input label="Price" type="number" placeholder="0.00" required />
-          <Input label="Category" placeholder="Enter category" required />
-          <div className="flex gap-3">
-            <Button variant="success" className="flex-1">
-              Add Item
-            </Button>
-            <Button variant="outline" onClick={() => setShowModal(false)} className="flex-1">
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </Modal>
+  <form onSubmit={(e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    handleAddProduct(formData);
+  }} className="space-y-4">
+    <Input name="name" label="Item Name" placeholder="Enter item name" required />
+    <Input name="description" label="Description" placeholder="Enter description" required />
+    <input name="quantity" type="number" placeholder="Initial Quantity" className="w-full p-2 border rounded" required />
+    <Input name="price" type="number" label="Price" placeholder="0.00" step="0.01" required />
+    <div className="flex gap-3">
+      <Button type="submit" variant="success" className="flex-1 bg-green-500 text-white py-2 rounded">
+        Add Item
+      </Button>
+      <Button type="button" variant="outline" onClick={() => setShowModal(false)} className="flex-1 bg-gray-500 text-white py-2 rounded">
+        Cancel
+      </Button>
+    </div>
+  </form>
+</Modal>
     </div>
   );
 };
