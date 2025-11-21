@@ -19,6 +19,12 @@ from django.urls import path, include  # Ajouter include ici
 from django.shortcuts import redirect
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),  # Ajouter cette ligne
+    path('api/', include('business.urls')),  # Ajouter cette ligne
     path('', lambda request: redirect('/api/')),  # Redirige la racine vers l'API
+    
 ]
+from django.conf import settings
+from django.conf.urls.static import static
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

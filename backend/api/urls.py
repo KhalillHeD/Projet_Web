@@ -8,6 +8,6 @@ router.register(r'products', views.ProductViewSet)
 router.register(r'orders', views.OrderViewSet)
 
 urlpatterns = [
-    path('', views.home, name='api-home'),
-    path('', include(router.urls)),
+    path('', include(router.urls)),  # Garde seulement le router ici
+    path('home/', views.home, name='api-home'),  # Si tu veux la page home
 ]

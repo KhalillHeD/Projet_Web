@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'business',
     'api',
     'rest_framework',
+    'corsheaders',
 ]
+CORS_ALLOW_ALL_ORIGINS = True  # pour test
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', 
@@ -52,7 +54,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [

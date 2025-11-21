@@ -113,25 +113,25 @@ const handleAddProduct = async (formData: any) => {
       name: name,
       description: description,
       price: price,
-      category: 1,
+      category_id: 1,
       is_available: true,
       initial_quantity: quantity 
     };
 
-    console.log('📤 Envoi du produit:', productData);
+    console.log('Envoi du produit:', productData);
 
-    const response = await fetch('http://127.0.0.1:8000/api/products/', {
+    const response = await fetch('http://127.0.0.1:8000/api/products/?business_id=${businessId}', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       body: JSON.stringify(productData),
     });
 
     if (response.ok) {
       const newProduct = await response.json();
-      
-      // ⭐ UTILISEZ LA NOUVELLE FONCTION
+
       updateProductQuantity(newProduct.id, quantity);
       
       await fetchProducts();
