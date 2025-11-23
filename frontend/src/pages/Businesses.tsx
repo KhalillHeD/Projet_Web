@@ -50,7 +50,7 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
   const getPreviousIndex = () => (currentIndex > 0 ? currentIndex - 1 : businesses.length - 1);
   const getNextIndex = () => (currentIndex < businesses.length - 1 ? currentIndex + 1 : 0);
 
-  // Create business
+
   const handleSubmitNewBusiness = async () => {
     if (!newBusinessName) return alert("Please enter a business name.");
 
@@ -69,9 +69,9 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
       if (!response.ok) throw new Error("Failed to create business");
 
       const newBusiness = await response.json();
-      alert(`Business "${newBusiness.name}" created successfully!`);
 
-      // Close modal and reset form
+
+
       setShowCreateModal(false);
       setNewBusinessName("");
       setNewBusinessDescription("");

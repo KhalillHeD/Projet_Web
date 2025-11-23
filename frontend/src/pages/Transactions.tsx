@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { Plus, Search, Filter, TrendingUp, TrendingDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Search, TrendingUp, TrendingDown } from 'lucide-react';
 import { Sidebar } from '../layouts/Sidebar';
 import { Breadcrumb } from '../layouts/Breadcrumb';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Modal } from '../components/Modal';
 import { Input } from '../components/Input';
-import { mockBusinesses, mockTransactions } from '../data/mockData';
 
 interface TransactionsProps {
   businessId: string;
@@ -18,27 +17,76 @@ export const Transactions: React.FC<TransactionsProps> = ({ businessId, onNaviga
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
+  const [transactions, setTransactions] = useState([]);
 
-  const business = mockBusinesses.find((b) => b.id === businessId);
-  const transactions = mockTransactions.filter((t) => t.businessId === businessId);
+  // form states
+  const [description, setDescription] = useState('');
+  const [amount, setAmount] = useState('');
+  const [type, setType] = useState<'income' | 'expense'>('income');
+  const [category, setCategory] = useState('');
+  const [date, setDate] = useState('');
 
-  const filteredTransactions = transactions.filter((t) => {
-    const matchesSearch = t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         t.category.toLowerCase().includes(searchTerm.toLowerCase());
+  useEffect(() => {
+    fetchTransactions();
+  }, [businessId]);
+
+  const fetchTransactions = async () => {
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/transactions/?business_id=${businessId}`);
+      const data = await res.json();
+      setTransactions(data);
+    } catch (error) {
+      console.log("Error fetching transactions:", error);
+    }
+  };
+
+  const handleAddTransaction = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const newTransaction = {
+      description,
+      amount: Number(amount),
+      type,
+      category,
+      date,
+      status: "completed",
+    };
+
+    try {
+      await fetch(`http://127.0.0.1:8000/api/transactions/?business_id=${businessId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newTransaction),
+      });
+
+      setShowModal(false);
+      fetchTransactions();
+
+      // reset input fields
+      setDescription('');
+      setAmount('');
+      setCategory('');
+      setDate('');
+
+    } catch (err) {
+      console.error("Error creating transaction:", err);
+    }
+  };
+
+  const filteredTransactions = transactions.filter((t: any) => {
+    const matchesSearch =
+      t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterType === 'all' || t.type === filterType;
     return matchesSearch && matchesFilter;
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'bg-[#16C47F]/10 text-[#16C47F]';
-      case 'pending':
-        return 'bg-[#FFA726]/10 text-[#FFA726]';
-      case 'cancelled':
-        return 'bg-[#EF5350]/10 text-[#EF5350]';
-      default:
-        return 'bg-gray-100 text-gray-600';
+      case 'completed': return 'bg-[#16C47F]/10 text-[#16C47F]';
+      case 'pending': return 'bg-[#FFA726]/10 text-[#FFA726]';
+      case 'cancelled': return 'bg-[#EF5350]/10 text-[#EF5350]';
+      default: return 'bg-gray-100 text-gray-600';
     }
   };
 
@@ -59,7 +107,6 @@ export const Transactions: React.FC<TransactionsProps> = ({ businessId, onNaviga
               items={[
                 { label: 'Home', path: '/' },
                 { label: 'Businesses', path: '/businesses' },
-                { label: business?.name || '', path: `/business/${businessId}` },
                 { label: 'Transactions' },
               ]}
               onNavigate={onNavigate}
@@ -81,38 +128,20 @@ export const Transactions: React.FC<TransactionsProps> = ({ businessId, onNaviga
                   placeholder="Search transactions..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200"
                 />
               </div>
               <div className="flex gap-2">
-                <button
-                  onClick={() => setFilterType('all')}
-                  className={`px-4 py-3 rounded-xl font-medium transition-all ${
-                    filterType === 'all'
-                      ? 'bg-[#1A6AFF] text-white'
-                      : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-[#1A6AFF]'
-                  }`}
-                >
+                <button onClick={() => setFilterType('all')}
+                        className={`px-4 py-3 rounded-xl ${filterType === 'all' ? 'bg-[#1A6AFF] text-white' : 'bg-white border-gray-200 border-2'}`}>
                   All
                 </button>
-                <button
-                  onClick={() => setFilterType('income')}
-                  className={`px-4 py-3 rounded-xl font-medium transition-all ${
-                    filterType === 'income'
-                      ? 'bg-[#16C47F] text-white'
-                      : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-[#16C47F]'
-                  }`}
-                >
+                <button onClick={() => setFilterType('income')}
+                        className={`px-4 py-3 rounded-xl ${filterType === 'income' ? 'bg-[#16C47F] text-white' : 'bg-white border-gray-200 border-2'}`}>
                   Income
                 </button>
-                <button
-                  onClick={() => setFilterType('expense')}
-                  className={`px-4 py-3 rounded-xl font-medium transition-all ${
-                    filterType === 'expense'
-                      ? 'bg-[#EF5350] text-white'
-                      : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-[#EF5350]'
-                  }`}
-                >
+                <button onClick={() => setFilterType('expense')}
+                        className={`px-4 py-3 rounded-xl ${filterType === 'expense' ? 'bg-[#EF5350] text-white' : 'bg-white border-gray-200 border-2'}`}>
                   Expense
                 </button>
               </div>
@@ -120,47 +149,38 @@ export const Transactions: React.FC<TransactionsProps> = ({ businessId, onNaviga
           </Card>
 
           <div className="grid gap-4">
-            {filteredTransactions.map((transaction, index) => (
-              <Card
-                key={transaction.id}
-                hover
-                onClick={() => onNavigate(`/business/${businessId}/transactions/${transaction.id}`)}
-                className="animate-slide-up"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
+            {filteredTransactions.map((t: any, index: number) => (
+              <Card key={t.id} hover className="animate-slide-up"
+                    style={{ animationDelay: `${index * 50}ms` }}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
                     <div
                       className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                        transaction.type === 'income'
+                        t.type === 'income'
                           ? 'bg-gradient-to-br from-[#16C47F] to-[#13ad70]'
                           : 'bg-gradient-to-br from-[#EF5350] to-[#e53935]'
                       }`}
                     >
-                      {transaction.type === 'income' ? (
+                      {t.type === 'income' ? (
                         <TrendingUp size={24} className="text-white" />
                       ) : (
                         <TrendingDown size={24} className="text-white" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-bold text-[#0B1A33] text-lg">{transaction.description}</h3>
-                      <p className="text-gray-600 text-sm">{transaction.category} • {transaction.date}</p>
+                      <h3 className="font-bold text-[#0B1A33] text-lg">{t.description}</h3>
+                      <p className="text-gray-600 text-sm">{t.category} • {t.date}</p>
                     </div>
                   </div>
                   <div className="text-right flex items-center gap-4">
-                    <div>
-                      <p
-                        className={`text-2xl font-bold ${
-                          transaction.type === 'income' ? 'text-[#16C47F]' : 'text-[#EF5350]'
-                        }`}
-                      >
-                        {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
-                      </p>
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}>
-                        {transaction.status}
-                      </span>
-                    </div>
+                    <p className={`text-2xl font-bold ${
+                      t.type === 'income' ? 'text-[#16C47F]' : 'text-[#EF5350]'
+                    }`}>
+                      {t.type === 'income' ? '+' : '-'}${t.amount}
+                    </p>
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(t.status)}`}>
+                      {t.status}
+                    </span>
                   </div>
                 </div>
               </Card>
@@ -175,26 +195,24 @@ export const Transactions: React.FC<TransactionsProps> = ({ businessId, onNaviga
         </div>
       </div>
 
+      {/* Modal */}
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Add New Transaction" size="md">
-        <form className="space-y-4">
-          <Input label="Description" placeholder="Enter transaction description" required />
-          <Input label="Amount" type="number" placeholder="0.00" required />
+        <form className="space-y-4" onSubmit={handleAddTransaction}>
+          <Input label="Description" value={description} onChange={(e) => setDescription(e.target.value)} required />
+          <Input label="Amount" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} required />
           <div>
             <label className="block text-sm font-medium text-[#0B1A33] mb-2">Type</label>
-            <select className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none">
-              <option>Income</option>
-              <option>Expense</option>
+            <select className="w-full px-4 py-3 rounded-xl border-2 border-gray-200"
+                    value={type} onChange={(e) => setType(e.target.value as any)}>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
             </select>
           </div>
-          <Input label="Category" placeholder="Enter category" required />
-          <Input label="Date" type="date" required />
+          <Input label="Category" value={category} onChange={(e) => setCategory(e.target.value)} required />
+          <Input label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
           <div className="flex gap-3">
-            <Button variant="primary" className="flex-1">
-              Add Transaction
-            </Button>
-            <Button variant="outline" onClick={() => setShowModal(false)} className="flex-1">
-              Cancel
-            </Button>
+            <Button type="submit" variant="primary" className="flex-1">Add Transaction</Button>
+            <Button variant="outline" onClick={() => setShowModal(false)} className="flex-1">Cancel</Button>
           </div>
         </form>
       </Modal>

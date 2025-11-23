@@ -14,7 +14,10 @@ interface ChartCardProps {
 }
 
 export const ChartCard: React.FC<ChartCardProps> = ({ title, data, type }) => {
-  const maxValue = Math.max(...data.map((d) => Math.max(d.revenue, d.expenses || 0)));
+  // Ensure we always have at least one data point
+  const safeData: ChartData[] = data.length > 0 ? data : [{ month: 'N/A', revenue: 0, expenses: 0 }];
+
+  const maxValue = Math.max(...safeData.map((d) => Math.max(d.revenue, d.expenses || 0)));
 
   return (
     <Card className="animate-fade-in">
@@ -32,9 +35,9 @@ export const ChartCard: React.FC<ChartCardProps> = ({ title, data, type }) => {
               <polyline
                 fill="url(#lineGradient)"
                 stroke="none"
-                points={data
+                points={safeData
                   .map((d, i) => {
-                    const x = (i / (data.length - 1)) * 800;
+                    const x = (i / (safeData.length - 1)) * 800;
                     const y = 250 - (d.revenue / maxValue) * 200;
                     return `${x},${y}`;
                   })
@@ -44,14 +47,14 @@ export const ChartCard: React.FC<ChartCardProps> = ({ title, data, type }) => {
                 fill="none"
                 stroke="#1A6AFF"
                 strokeWidth="3"
-                points={data.map((d, i) => {
-                  const x = (i / (data.length - 1)) * 800;
+                points={safeData.map((d, i) => {
+                  const x = (i / (safeData.length - 1)) * 800;
                   const y = 250 - (d.revenue / maxValue) * 200;
                   return `${x},${y}`;
                 }).join(' ')}
               />
-              {data.map((d, i) => {
-                const x = (i / (data.length - 1)) * 800;
+              {safeData.map((d, i) => {
+                const x = (i / (safeData.length - 1)) * 800;
                 const y = 250 - (d.revenue / maxValue) * 200;
                 return (
                   <circle
@@ -66,7 +69,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({ title, data, type }) => {
               })}
             </svg>
             <div className="flex justify-between mt-4 text-sm text-gray-600">
-              {data.map((d, i) => (
+              {safeData.map((d, i) => (
                 <span key={i}>{d.month}</span>
               ))}
             </div>
@@ -75,13 +78,13 @@ export const ChartCard: React.FC<ChartCardProps> = ({ title, data, type }) => {
 
         {type === 'bar' && (
           <div className="space-y-3">
-            {data.map((d, i) => (
+            {safeData.map((d, i) => (
               <div key={i}>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="font-medium text-[#0B1A33]">{d.month}</span>
                   <div className="flex gap-4">
                     <span className="text-[#1A6AFF]">${(d.revenue / 1000).toFixed(1)}k</span>
-                    {d.expenses && <span className="text-[#EF5350]">${(d.expenses / 1000).toFixed(1)}k</span>}
+                    {d.expenses !== undefined && <span className="text-[#EF5350]">${(d.expenses / 1000).toFixed(1)}k</span>}
                   </div>
                 </div>
                 <div className="flex gap-2 h-8">
@@ -91,7 +94,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({ title, data, type }) => {
                       style={{ width: `${(d.revenue / maxValue) * 100}%` }}
                     />
                   </div>
-                  {d.expenses && (
+                  {d.expenses !== undefined && (
                     <div className="flex-1 bg-gray-100 rounded-lg overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-[#EF5350] to-[#e53935] transition-all duration-500 rounded-lg"
@@ -105,13 +108,14 @@ export const ChartCard: React.FC<ChartCardProps> = ({ title, data, type }) => {
           </div>
         )}
       </div>
+
       {type === 'bar' && (
         <div className="flex justify-center gap-6 mt-6">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-gradient-to-r from-[#1A6AFF] to-[#3E8BFF] rounded-full"></div>
             <span className="text-sm text-gray-600">Revenue</span>
           </div>
-          {data[0].expenses !== undefined && (
+          {safeData.some(d => d.expenses !== undefined) && (
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-gradient-to-r from-[#EF5350] to-[#e53935] rounded-full"></div>
               <span className="text-sm text-gray-600">Expenses</span>

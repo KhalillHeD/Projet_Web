@@ -1,4 +1,13 @@
 from django.db import models
+import datetime
+import uuid
+STATUS_CHOICES = [
+    ('paid', 'Paid'),
+    ('unpaid', 'Unpaid'),
+    ('pending', 'Pending'),
+    ('overdue', 'Overdue'),
+]
+
 class Business(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -49,4 +58,38 @@ class Order(models.Model):
     def __str__(self):
         return f"Commande #{self.id} - {self.customer_name}"
 
+class Transaction(models.Model):
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="transactions")
+    description = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    type = models.CharField(max_length=10, choices=(('income','Income'), ('expense','Expense')))
+    category = models.CharField(max_length=100)
+    date = models.DateField()
+    status = models.CharField(max_length=10, default="completed")
+    
+class ContactInfo(models.Model):
+    business = models.OneToOneField(Business, on_delete=models.CASCADE, related_name='contact_info')
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+    address = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+    postal_code = models.CharField(max_length=20, blank=True)
+    country = models.CharField(max_length=100, blank=True)
 
+class Invoice(models.Model):
+    business = models.ForeignKey(Business, on_delete=models.CASCADE)
+    invoiceNumber = models.CharField(max_length=50, unique=True, blank=True)
+    clientName = models.CharField(max_length=100)
+    dueDate = models.DateField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.invoiceNumber:
+            date_str = datetime.date.today().strftime('%Y%m%d')
+            # Random 6-character suffix ensures uniqueness
+            unique_suffix = uuid.uuid4().hex[:6].upper()
+            self.invoiceNumber = f"INV-{date_str}-{unique_suffix}"
+        super().save(*args, **kwargs)
