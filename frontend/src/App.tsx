@@ -12,9 +12,13 @@ import { Transactions } from './pages/Transactions';
 import { Billing } from './pages/Billing';
 import { Stock } from './pages/Stock';
 import { Settings } from './pages/Settings';
+import { useAuth } from "./context/AuthContext";
+
 
 function App() {
   const { currentPath, navigate } = useRouter();
+  const auth = useAuth();
+  console.log("AUTH CONTEXT:", auth);
 
   const renderPage = () => {
     if (currentPath === '/') {

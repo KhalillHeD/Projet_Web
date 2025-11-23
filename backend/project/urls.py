@@ -17,11 +17,24 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include  # Ajouter include ici
 from django.shortcuts import redirect
+from api.views import RegisterView, MeView 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('business.urls')),  # Ajouter cette ligne
-    path('', lambda request: redirect('/api/')),  # Redirige la racine vers l'API
-    
+
+    # existing API (categories/products/orders etc.)
+    path('api/', include('business.urls')),
+
+    path("api/auth/register/", RegisterView.as_view(), name="auth_register"),
+    path("api/auth/me/", MeView.as_view(), name="auth_me"),
+    path("api/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+
+    path('', lambda request: redirect('/api/')),
 ]
 from django.conf import settings
 from django.conf.urls.static import static
