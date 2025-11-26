@@ -26,6 +26,15 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
   const [newBusinessLogo, setNewBusinessLogo] = useState<File | null>(null);
   const [newBusinessTagline, setNewBusinessTagline] = useState("");
 
+  // Contact info optional
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactAddress, setContactAddress] = useState("");
+  const [contactCity, setContactCity] = useState("");
+  const [contactState, setContactState] = useState("");
+  const [contactPostalCode, setContactPostalCode] = useState("");
+  const [contactCountry, setContactCountry] = useState("");
+
   // Fetch businesses from backend
   useEffect(() => {
     const fetchBusinesses = async () => {
@@ -50,7 +59,6 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
   const getPreviousIndex = () => (currentIndex > 0 ? currentIndex - 1 : businesses.length - 1);
   const getNextIndex = () => (currentIndex < businesses.length - 1 ? currentIndex + 1 : 0);
 
-
   const handleSubmitNewBusiness = async () => {
     if (!newBusinessName) return alert("Please enter a business name.");
 
@@ -60,25 +68,53 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
     formData.append("tagline", newBusinessTagline);
     if (newBusinessLogo) formData.append("logo", newBusinessLogo);
 
+    // Prepare contact_info as JSON string
+    const contactInfo = {
+      email: contactEmail,
+      phone: contactPhone,
+      address: contactAddress,
+      city: contactCity,
+      state: contactState,
+      postal_code: contactPostalCode,
+      country: contactCountry,
+    };
+
+    // Only include non-empty fields
+    const filteredContactInfo = Object.fromEntries(
+      Object.entries(contactInfo).filter(([_, v]) => v)
+    );
+
+    formData.append("contact_info", JSON.stringify(filteredContactInfo));
+
     try {
       const response = await fetch("http://127.0.0.1:8000/api/businesses/", {
         method: "POST",
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Failed to create business");
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Backend error:", errorData);
+        throw new Error("Failed to create business");
+      }
 
       const newBusiness = await response.json();
 
-
-
+      // Reset form
       setShowCreateModal(false);
       setNewBusinessName("");
       setNewBusinessDescription("");
       setNewBusinessTagline("");
       setNewBusinessLogo(null);
+      setContactEmail("");
+      setContactPhone("");
+      setContactAddress("");
+      setContactCity("");
+      setContactState("");
+      setContactPostalCode("");
+      setContactCountry("");
 
-      // Refresh businesses list and navigate
+      // Update businesses list
       setBusinesses(prev => [...prev, newBusiness]);
       onNavigate(`/business/${newBusiness.id}`);
     } catch (err) {
@@ -86,6 +122,7 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
       alert("Error creating business");
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1A6AFF]/10 via-[#3E8BFF]/5 to-transparent flex items-center justify-center px-4 py-12">
@@ -204,9 +241,9 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
 
         {/* Modal */}
         {showCreateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white rounded-2xl w-full max-w-md p-8 relative">
-              <h2 className="text-2xl font-bold mb-4 text-[#0B1A33]">Create New Business</h2>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative shadow-xl">
+              <h2 className="text-2xl font-bold mb-4 text-[#0B1A33] text-center">Create New Business</h2>
               <div className="space-y-4">
                 <input
                   type="text"
@@ -235,6 +272,16 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
                   onChange={e => e.target.files && setNewBusinessLogo(e.target.files[0])}
                   className="w-full border-2 border-gray-200 rounded-xl p-2"
                 />
+
+                {/* Contact info optional */}
+                <input type="email" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder="Email (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
+                <input type="text" value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="Phone (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
+                <input type="text" value={contactAddress} onChange={e => setContactAddress(e.target.value)} placeholder="Address (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
+                <input type="text" value={contactCity} onChange={e => setContactCity(e.target.value)} placeholder="City (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
+                <input type="text" value={contactState} onChange={e => setContactState(e.target.value)} placeholder="State (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
+                <input type="text" value={contactPostalCode} onChange={e => setContactPostalCode(e.target.value)} placeholder="Postal Code (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
+                <input type="text" value={contactCountry} onChange={e => setContactCountry(e.target.value)} placeholder="Country (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
+
                 <div className="flex gap-3 mt-4">
                   <button
                     onClick={handleSubmitNewBusiness}
