@@ -13,6 +13,8 @@ from django.http import HttpResponse
 from .models import Invoice
 from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image)
 from reportlab.lib.styles import getSampleStyleSheet
+import datetime
+from rest_framework.exceptions import ValidationError
 
 
 class BusinessViewSet(viewsets.ModelViewSet):
@@ -23,16 +25,28 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
-
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
     def get_queryset(self):
         business_id = self.request.query_params.get("business_id")
         if business_id:
             return Product.objects.filter(business_id=business_id)
         return Product.objects.all()
-    
+
+    def perform_create(self, serializer):
+        business_id = self.request.query_params.get("business_id")
+        if not business_id:
+            raise ValidationError({"business_id": "business_id is required to create a product."})
+
+        try:
+            business = Business.objects.get(id=business_id)
+        except Business.DoesNotExist:
+            raise ValidationError({"business_id": "Business not found."})
+
+        serializer.save(business=business)
+
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
