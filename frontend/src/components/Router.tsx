@@ -1,42 +1,66 @@
-import React, { useState } from 'react';
-import { Signup } from '../pages/Signup';
-import { Businesses } from '../pages/Businesses'; // You'll need to create this
-import { Login } from '../pages/Login'; // You'll need to create this
-import { parseRoute, matchRoute } from '../utils/router'; // Your router utilities
+import React, { useState } from "react";
+import { Signup } from "../pages/Signup";
+import { Businesses } from "../pages/Businesses";
+import { Login } from "../pages/Login";
+import { matchRoute } from "../utils/router";
+import { useAuth } from "../context/AuthContext";
+
 
 export const Router: React.FC = () => {
-  const [currentPath, setCurrentPath] = useState('/signup'); // Start at signup
+  const [currentPath, setCurrentPath] = useState("/signup"); 
+  const { user, loading } = useAuth();
 
   const handleNavigate = (path: string) => {
     setCurrentPath(path);
   };
 
+  const isProtectedRoute = (path: string) => {
+    if (matchRoute("/businesses", path).match) return true;
+    if (matchRoute("/business/:id", path).match) return true;
+  
+    return false;
+  };
+
   const renderPage = () => {
-    // Check which route matches the current path
-    if (matchRoute('/signup', currentPath).match) {
-      return <Signup onNavigate={handleNavigate} />;
+    if (loading) {
+      return <div>Loading session...</div>;
     }
-    
-    if (matchRoute('/login', currentPath).match) {
+
+    // If route is protected and user is not logged in → show Login
+    if (!user && isProtectedRoute(currentPath)) {
       return <Login onNavigate={handleNavigate} />;
     }
-    
-    if (matchRoute('/businesses', currentPath).match) {
+
+    // Public routes
+    if (matchRoute("/signup", currentPath).match) {
+      return <Signup onNavigate={handleNavigate} />;
+    }
+
+    if (matchRoute("/login", currentPath).match) {
+      return <Login onNavigate={handleNavigate} />;
+    }
+
+    // Protected routes (only reachable here if user is not null)
+    if (matchRoute("/businesses", currentPath).match) {
       return <Businesses onNavigate={handleNavigate} />;
     }
-    
-    if (matchRoute('/business/:id', currentPath).match) {
-      const { params } = matchRoute('/business/:id', currentPath);
-      return <BusinessDetail businessId={params.id} onNavigate={handleNavigate} />;
+
+    const businessMatch = matchRoute("/business/:id", currentPath);
+    if (businessMatch.match) {
+      const { params } = businessMatch;
+      // if you have a BusinessDetail page, use it here:
+      // return (
+      //   <BusinessDetail
+      //     businessId={params.id}
+      //     onNavigate={handleNavigate}
+      //   />
+      // );
+      return <div>Business detail for {params.id}</div>;
     }
-    
-    // Default to signup if no route matches
+
+    // Default
     return <Signup onNavigate={handleNavigate} />;
   };
 
-  return (
-    <div>
-      {renderPage()}
-    </div>
-  );
+  return <div>{renderPage()}</div>;
 };

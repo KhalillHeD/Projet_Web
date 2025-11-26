@@ -3,20 +3,93 @@ import { Mail, Lock, User, Building2 } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { Card } from '../components/Card';
+import { registerUser } from "../services/auth";
 
 interface SignupProps {
   onNavigate: (path: string) => void;
 }
 
 export const Signup: React.FC<SignupProps> = ({ onNavigate }) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');                // username
+  const [email, setEmail] = useState('');              // email
+  const [password, setPassword] = useState('');        // password
+  const [confirmPassword, setConfirmPassword] = useState(''); // confirm
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onNavigate('/businesses');
+    setError(null);
+
+    // Basic client-side checks
+    if (!name.trim() || !email.trim() || !password || !confirmPassword) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const createdUser = await registerUser({
+        username: name.trim(),
+        email: email.trim(),
+        password,
+        password2: confirmPassword,
+      });
+
+      // Expect at least username/email back
+      if (!createdUser || !createdUser.username) {
+        setError("Registration failed on server.");
+        return;
+      }
+
+      // Success → go to businesses
+      onNavigate("/businesses");
+
+    } catch (err: any) {
+      console.error("Registration error:", err);
+
+      // DRF typical field errors
+      if (err?.email) {
+        const msg = Array.isArray(err.email) ? err.email[0] : String(err.email);
+        setError(msg);
+      } else if (err?.username) {
+        const msg = Array.isArray(err.username) ? err.username[0] : String(err.username);
+        setError(msg);
+      } else if (err?.non_field_errors) {
+        const msg = Array.isArray(err.non_field_errors)
+          ? err.non_field_errors[0]
+          : String(err.non_field_errors);
+        setError(msg);
+      } else if (err?.detail) {
+        setError(String(err.detail));
+      } else if (err && typeof err === "object") {
+        // Generic: show first field error (password, password2, etc.)
+        const keys = Object.keys(err);
+        if (keys.length > 0) {
+          const key = keys[0];
+          const value = (err as any)[key];
+          const msg = Array.isArray(value) ? value[0] : String(value);
+          setError(msg);
+        } else {
+          setError("Registration failed. Please check your input.");
+        }
+      } else {
+        setError("Registration failed. Try another email or username.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,6 +108,10 @@ export const Signup: React.FC<SignupProps> = ({ onNavigate }) => {
 
         <Card>
           <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <p className="text-red-500 text-center text-sm">{error}</p>
+            )}
+
             <Input
               type="text"
               label="Full Name"
@@ -77,13 +154,17 @@ export const Signup: React.FC<SignupProps> = ({ onNavigate }) => {
 
             <div className="text-sm text-gray-600">
               <label className="flex items-start gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 mt-0.5 rounded border-gray-300 text-[#1A6AFF] focus:ring-[#1A6AFF]" required />
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 mt-0.5 rounded border-gray-300 text-[#1A6AFF]"
+                  required
+                />
                 <span>
-                  I agree to the{' '}
+                  I agree to the{" "}
                   <button type="button" className="text-[#1A6AFF] hover:underline">
                     Terms of Service
-                  </button>{' '}
-                  and{' '}
+                  </button>{" "}
+                  and{" "}
                   <button type="button" className="text-[#1A6AFF] hover:underline">
                     Privacy Policy
                   </button>
@@ -91,21 +172,33 @@ export const Signup: React.FC<SignupProps> = ({ onNavigate }) => {
               </label>
             </div>
 
-            <Button type="submit" variant="primary" size="lg" className="w-full">
-              Create Account
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <button onClick={() => onNavigate('/login')} className="text-[#1A6AFF] font-medium hover:underline">
+            Already have an account?{" "}
+            <button
+              onClick={() => onNavigate("/login")}
+              className="text-[#1A6AFF] font-medium hover:underline"
+            >
               Sign in
             </button>
           </div>
         </Card>
 
         <div className="mt-6 text-center">
-          <button onClick={() => onNavigate('/')} className="text-gray-600 hover:text-[#1A6AFF] transition-colors">
+          <button
+            onClick={() => onNavigate("/")}
+            className="text-gray-600 hover:text-[#1A6AFF] transition-colors"
+          >
             Back to home
           </button>
         </div>

@@ -40,6 +40,9 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
     const fetchBusinesses = async () => {
       try {
         const res = await fetch("http://127.0.0.1:8000/api/businesses/");
+        if (!res.ok) {
+          throw new Error("Failed to fetch businesses");
+        }
         const data = await res.json();
         setBusinesses(data);
       } catch (err) {
@@ -51,16 +54,26 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
 
   // Carousel navigation
   const handlePrevious = () => {
+    if (!businesses.length) return;
     setCurrentIndex(prev => (prev > 0 ? prev - 1 : businesses.length - 1));
   };
+
   const handleNext = () => {
+    if (!businesses.length) return;
     setCurrentIndex(prev => (prev < businesses.length - 1 ? prev + 1 : 0));
   };
-  const getPreviousIndex = () => (currentIndex > 0 ? currentIndex - 1 : businesses.length - 1);
-  const getNextIndex = () => (currentIndex < businesses.length - 1 ? currentIndex + 1 : 0);
 
-  const handleSubmitNewBusiness = async () => {
-    if (!newBusinessName) return alert("Please enter a business name.");
+  const getPreviousIndex = () =>
+    businesses.length ? (currentIndex > 0 ? currentIndex - 1 : businesses.length - 1) : 0;
+
+  const getNextIndex = () =>
+    businesses.length ? (currentIndex < businesses.length - 1 ? currentIndex + 1 : 0) : 0;
+
+const handleSubmitNewBusiness = async () => {
+  if (!newBusinessName) {
+    alert("Please enter a business name.");
+    return;
+  }
 
     const formData = new FormData();
     formData.append("name", newBusinessName);
@@ -77,7 +90,7 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
       state: contactState,
       postal_code: contactPostalCode,
       country: contactCountry,
-    };
+  };
 
     // Only include non-empty fields
     const filteredContactInfo = Object.fromEntries(
@@ -87,24 +100,23 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
     formData.append("contact_info", JSON.stringify(filteredContactInfo));
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/businesses/", {
-        method: "POST",
+    const response = await fetch("http://127.0.0.1:8000/api/businesses/", {
+      method: "POST",
         body: formData,
-      });
+    });
 
-      if (!response.ok) {
+    if (!response.ok) {
         const errorData = await response.json();
         console.error("Backend error:", errorData);
         throw new Error("Failed to create business");
-      }
+    }
 
       const newBusiness = await response.json();
 
-      // Reset form
-      setShowCreateModal(false);
-      setNewBusinessName("");
-      setNewBusinessDescription("");
-      setNewBusinessTagline("");
+    setShowCreateModal(false);
+    setNewBusinessName("");
+    setNewBusinessDescription("");
+    setNewBusinessTagline("");
       setNewBusinessLogo(null);
       setContactEmail("");
       setContactPhone("");
@@ -114,14 +126,13 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
       setContactPostalCode("");
       setContactCountry("");
 
-      // Update businesses list
-      setBusinesses(prev => [...prev, newBusiness]);
-      onNavigate(`/business/${newBusiness.id}`);
-    } catch (err) {
-      console.error(err);
-      alert("Error creating business");
-    }
-  };
+    setBusinesses(prev => [...prev, newBusiness]);
+    onNavigate(`/business/${newBusiness.id}`);
+  } catch (err) {
+    console.error("Network or code error:", err);
+    alert("Network error creating business");
+  }
+};
 
 
   return (
