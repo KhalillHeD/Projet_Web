@@ -3,6 +3,7 @@ from .models import Category, Product, Order , Transaction , ContactInfo , Invoi
 from .models import Business
 import datetime
 import uuid
+import json
 
 class ContactInfoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,24 +11,40 @@ class ContactInfoSerializer(serializers.ModelSerializer):
         fields = ['email', 'phone', 'address', 'city', 'state', 'postal_code', 'country']
 
 
+import json
+
 class BusinessSerializer(serializers.ModelSerializer):
-    contact_info = ContactInfoSerializer()
+    contact_info = ContactInfoSerializer(required=False)
 
     class Meta:
         model = Business
         fields = ['id', 'name', 'description', 'logo', 'tagline', 'industry', 'contact_info']
 
     def create(self, validated_data):
-        contact_data = validated_data.pop('contact_info', {})
+        # Handle contact_info manually from initial_data because FormData sends strings
+        contact_data = {}
+        for field in ['email', 'phone', 'address', 'city', 'state', 'postal_code', 'country']:
+            key = f'contact_info[{field}]'
+            if key in self.initial_data:
+                contact_data[field] = self.initial_data[key]
+
         business = super().create(validated_data)
-        ContactInfo.objects.create(business=business, **contact_data)
+        if contact_data:
+            ContactInfo.objects.create(business=business, **contact_data)
         return business
 
     def update(self, instance, validated_data):
-        contact_data = validated_data.pop('contact_info', {})
+        contact_data = {}
+        for field in ['email', 'phone', 'address', 'city', 'state', 'postal_code', 'country']:
+            key = f'contact_info[{field}]'
+            if key in self.initial_data:
+                contact_data[field] = self.initial_data[key]
+
         instance = super().update(instance, validated_data)
-        ContactInfo.objects.update_or_create(business=instance, defaults=contact_data)
+        if contact_data:
+            ContactInfo.objects.update_or_create(business=instance, defaults=contact_data)
         return instance
+
     
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
