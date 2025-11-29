@@ -12,16 +12,16 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # 🔹 AUTH ENDPOINTS FIRST (exact paths)
+    # 🔹 AUTH ENDPOINTS
     path("api/auth/register/", RegisterView.as_view(), name="auth_register"),
     path("api/auth/me/", MeView.as_view(), name="auth_me"),
     path("api/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
-    # 🔹 OTHER API ROUTES UNDER /api/
-    path("api/", include("business.urls")),
-    path("api/", include("api.urls")),  # expose categories/products/orders from api app too
+    # 🔹 SECURED API
+    path("api/", include("api.urls")),   
 
+    # Redirect root to /api/
     path("", lambda request: redirect("/api/")),
 ]
 

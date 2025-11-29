@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from business.models import Category, Product, Order
+from business.models import Category, Product, Order ,Business
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -49,6 +49,13 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_total_price_display(self, obj):
         return f"{obj.total_price} €"
+    
+class BusinessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Business
+        # don't expose the user field to the client
+        fields = ["id", "name", "description", "logo", "tagline", "industry"]
+
 
 class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:

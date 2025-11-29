@@ -39,10 +39,24 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
   useEffect(() => {
     const fetchBusinesses = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/businesses/");
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+          console.error("No access token found in localStorage");
+          return;
+        }
+
+        const res = await fetch("http://127.0.0.1:8000/api/businesses/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         if (!res.ok) {
+          const errBody = await res.json().catch(() => null);
+          console.error("Backend error fetching businesses:", errBody);
           throw new Error("Failed to fetch businesses");
         }
+
         const data = await res.json();
         setBusinesses(data);
       } catch (err) {
@@ -69,11 +83,17 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
   const getNextIndex = () =>
     businesses.length ? (currentIndex < businesses.length - 1 ? currentIndex + 1 : 0) : 0;
 
-const handleSubmitNewBusiness = async () => {
-  if (!newBusinessName) {
-    alert("Please enter a business name.");
-    return;
-  }
+  const handleSubmitNewBusiness = async () => {
+    if (!newBusinessName) {
+      alert("Please enter a business name.");
+      return;
+    }
+
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      alert("You must be logged in to create a business.");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("name", newBusinessName);
@@ -90,7 +110,7 @@ const handleSubmitNewBusiness = async () => {
       state: contactState,
       postal_code: contactPostalCode,
       country: contactCountry,
-  };
+    };
 
     // Only include non-empty fields
     const filteredContactInfo = Object.fromEntries(
@@ -100,23 +120,27 @@ const handleSubmitNewBusiness = async () => {
     formData.append("contact_info", JSON.stringify(filteredContactInfo));
 
     try {
-    const response = await fetch("http://127.0.0.1:8000/api/businesses/", {
-      method: "POST",
+      const response = await fetch("http://127.0.0.1:8000/api/businesses/", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // DO NOT set Content-Type when sending FormData; browser will handle it
+        },
         body: formData,
-    });
+      });
 
-    if (!response.ok) {
-        const errorData = await response.json();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
         console.error("Backend error:", errorData);
         throw new Error("Failed to create business");
-    }
+      }
 
       const newBusiness = await response.json();
 
-    setShowCreateModal(false);
-    setNewBusinessName("");
-    setNewBusinessDescription("");
-    setNewBusinessTagline("");
+      setShowCreateModal(false);
+      setNewBusinessName("");
+      setNewBusinessDescription("");
+      setNewBusinessTagline("");
       setNewBusinessLogo(null);
       setContactEmail("");
       setContactPhone("");
@@ -126,14 +150,13 @@ const handleSubmitNewBusiness = async () => {
       setContactPostalCode("");
       setContactCountry("");
 
-    setBusinesses(prev => [...prev, newBusiness]);
-    onNavigate(`/business/${newBusiness.id}`);
-  } catch (err) {
-    console.error("Network or code error:", err);
-    alert("Network error creating business");
-  }
-};
-
+      setBusinesses(prev => [...prev, newBusiness]);
+      onNavigate(`/business/${newBusiness.id}`);
+    } catch (err) {
+      console.error("Network or code error:", err);
+      alert("Network error creating business");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1A6AFF]/10 via-[#3E8BFF]/5 to-transparent flex items-center justify-center px-4 py-12">
