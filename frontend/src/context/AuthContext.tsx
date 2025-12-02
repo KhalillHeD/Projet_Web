@@ -37,8 +37,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Restore saved login
   useEffect(() => {
-    const storedAccess = localStorage.getItem("access");
-    const storedRefresh = localStorage.getItem("refresh");
+    // Prefer new keys, but also accept old ones if they exist
+    const storedAccess =
+      localStorage.getItem("access_token") ?? localStorage.getItem("access");
+    const storedRefresh =
+      localStorage.getItem("refresh_token") ?? localStorage.getItem("refresh");
 
     if (!storedAccess || !storedRefresh) {
       console.log("No stored tokens → user not logged in");
@@ -55,8 +58,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(me);
         setAccessToken(storedAccess);
         setRefreshToken(storedRefresh);
+
+        // Normalize keys to the new names
+        localStorage.setItem("access_token", storedAccess);
+        localStorage.setItem("refresh_token", storedRefresh);
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
       } catch (e) {
         console.warn("Token invalid → clearing storage");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
       } finally {
@@ -72,6 +83,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     console.log("Login success → tokens received");
 
+    // Save with names used by the rest of the app
+    localStorage.setItem("access_token", access);
+    localStorage.setItem("refresh_token", refresh);
+
+    // (Optionally keep old keys for backwards compatibility)
     localStorage.setItem("access", access);
     localStorage.setItem("refresh", refresh);
 
@@ -106,6 +122,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAccessToken(null);
     setRefreshToken(null);
 
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
   };

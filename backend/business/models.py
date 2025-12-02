@@ -1,6 +1,8 @@
 from django.db import models
 import datetime
 import uuid
+from django.contrib.auth import get_user_model
+User = get_user_model()
 STATUS_CHOICES = [
     ('paid', 'Paid'),
     ('unpaid', 'Unpaid'),
@@ -8,15 +10,34 @@ STATUS_CHOICES = [
     ('overdue', 'Overdue'),
 ]
 
+
+
+
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 class Business(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="businesses",
+        null=True,
+        blank=True,
+    )
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    logo = models.ImageField(upload_to='business_logos/', blank=True, null=True)  # optional
-    tagline = models.CharField(max_length=255, blank=True)  # optional
-    industry = models.CharField(max_length=255, blank=True, null=True)  # Add this line
+    logo = models.ImageField(upload_to='business_logos/', blank=True, null=True)
+    tagline = models.CharField(max_length=255, blank=True)
+    industry = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.name
+
+
+
+
+    
 class Category(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)

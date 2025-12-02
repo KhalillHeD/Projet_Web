@@ -4,11 +4,16 @@ from . import views
 from .views import RegisterView, MeView
 
 router = DefaultRouter()
+router.register(r'businesses', views.BusinessViewSet, basename='business')
+router.register(r'categories', views.CategoryViewSet, basename='category')
+router.register(r'products', views.ProductViewSet, basename='product')
+router.register(r'orders', views.OrderViewSet, basename='order')
 
 
 urlpatterns = [
-    path('', include(router.urls)),  # Garde seulement le router ici
-    path('home/', views.home, name='api-home'),  # Si tu veux la page home
+    path('', include(router.urls)),  
+    path('home/', views.home, name='api-home'),  
     path("auth/register/", RegisterView.as_view(), name="auth_register"),
     path("auth/me/", MeView.as_view(), name="auth_me"),
+    path('', include(router.urls)),
 ]
