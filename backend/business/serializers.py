@@ -11,7 +11,7 @@ class ContactInfoSerializer(serializers.ModelSerializer):
         fields = ['email', 'phone', 'address', 'city', 'state', 'postal_code', 'country']
 
 
-import json
+
 
 class BusinessSerializer(serializers.ModelSerializer):
     contact_info = ContactInfoSerializer(required=False)

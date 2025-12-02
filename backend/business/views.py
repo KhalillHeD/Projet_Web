@@ -15,7 +15,12 @@ from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table, Tab
 from reportlab.lib.styles import getSampleStyleSheet
 import datetime
 from rest_framework.exceptions import ValidationError
-
+from django.core.mail import send_mail
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.core.mail import EmailMessage
 
 class BusinessViewSet(viewsets.ModelViewSet):
     queryset = Business.objects.all()
@@ -227,3 +232,35 @@ def invoice_pdf(request, pk):
 
     buffer.seek(0)
     return HttpResponse(buffer, content_type="application/pdf")
+
+
+
+
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def contact_us(request):
+    try:
+        data = json.loads(request.body)
+        name = data.get('name')
+        email = data.get('email')
+        message = data.get('message')
+
+        if not all([name, email, message]):
+            return JsonResponse({'success': False, 'error': 'Missing fields'}, status=400)
+
+        email_msg = EmailMessage(
+            subject=f'New Contact from {name}',
+            body=f"From: {name}\nEmail: {email}\n\nMessage:\n{message}",
+            from_email=None,  # Uses DEFAULT_FROM_EMAIL from settings.py
+            to=['bizmanager08@gmail.com'],
+            headers={'Reply-To': email}
+        )
+
+        email_msg.send(fail_silently=False)
+
+        return JsonResponse({'success': True, 'message': 'Email sent successfully'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
