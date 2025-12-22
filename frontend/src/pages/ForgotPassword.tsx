@@ -1,37 +1,45 @@
 import React, { useState } from "react";
-import { Mail, Lock, Building2 } from "lucide-react";
+import { Mail, Building2 } from "lucide-react";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { Card } from "../components/Card";
-import { useAuth } from "../context/AuthContext";
 
-interface LoginProps {
+interface ForgotPasswordProps {
   onNavigate: (path: string) => void;
 }
 
-export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
-  const { login } = useAuth();
-  const [identifier, setIdentifier] = useState(""); // we'll use this as username
-  const [password, setPassword] = useState("");
+export const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onNavigate }) => {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setStatus(null);
     setLoading(true);
 
     try {
-      // backend expects "username", so we send identifier as username
-      await login(identifier, password);
-      onNavigate("/businesses");
+        const res = await fetch("http://localhost:8000/api/auth/password-reset/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+        });
+
+        if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.detail || "Something went wrong. Please try again.");
+        } else {
+        setStatus("If an account exists with that email, a reset link has been sent.");
+        }
     } catch (err) {
-      console.error(err);
-      setError("Invalid credentials or server error");
+        console.error(err);
+        setError("Network error. Please try again.");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+    };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-[#1A6AFF]/10 via-[#3E8BFF]/5 to-transparent">
@@ -43,8 +51,10 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             </div>
             <span className="text-3xl font-bold text-[#0B1A33]">BizManager</span>
           </div>
-          <h1 className="text-3xl font-bold text-[#0B1A33] mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to manage your business</p>
+          <h1 className="text-3xl font-bold text-[#0B1A33] mb-2">Forgot password</h1>
+          <p className="text-gray-600">
+            Enter your email and a reset link will be sent to you.
+          </p>
         </div>
 
         <Card>
@@ -52,43 +62,19 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
             {error && (
               <p className="text-sm text-red-500 text-center">{error}</p>
             )}
+            {status && (
+              <p className="text-sm text-green-600 text-center">{status}</p>
+            )}
 
             <Input
-              type="text"
-              label="Username"
-              placeholder="Your username"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
+              type="email"
+              label="Email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               icon={<Mail size={20} />}
               required
             />
-
-            <Input
-              type="password"
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              icon={<Lock size={20} />}
-              required
-            />
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-gray-300 text-[#1A6AFF] focus:ring-[#1A6AFF]"
-                />
-                <span className="text-gray-600">Remember me</span>
-              </label>
-            <button
-              type="button"
-              className="text-[#1A6AFF] hover:underline"
-              onClick={() => onNavigate("/forgot-password")}
-            >
-              Forgot password?
-            </button>
-            </div>
 
             <Button
               type="submit"
@@ -97,17 +83,17 @@ export const Login: React.FC<LoginProps> = ({ onNavigate }) => {
               className="w-full"
               disabled={loading}
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Sending..." : "Send reset link"}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm text-gray-600">
-            Don't have an account?{" "}
+            Remembered your password?{" "}
             <button
-              onClick={() => onNavigate("/signup")}
+              onClick={() => onNavigate("/login")}
               className="text-[#1A6AFF] font-medium hover:underline"
             >
-              Sign up
+              Back to login
             </button>
           </div>
         </Card>

@@ -11,7 +11,8 @@ router.register(r"transactions", TransactionViewSet, basename="transactions")
 router.register(r'invoices', InvoiceViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
+
     path('invoices/<int:pk>/pdf/', invoice_pdf, name='invoice-pdf'),
     path('contact/', contact_us, name='contact_us'),
+    path('', include(router.urls)),
 ]

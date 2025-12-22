@@ -1,14 +1,31 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, TrendingUp, FileText, Package, BarChart3, Shield, Zap, Mail, Phone, MapPin, ChevronDown, Sparkles, Star } from 'lucide-react';
-import { Button } from '../components/Button';
-import { Card } from '../components/Card';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  ArrowRight,
+  TrendingUp,
+  FileText,
+  Package,
+  BarChart3,
+  Shield,
+  Zap,
+  Mail,
+  Phone,
+  MapPin,
+  ChevronDown,
+  Sparkles,
+  Star,
+} from "lucide-react";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { useAuth } from "../context/AuthContext";
 
 interface HomeProps {
   onNavigate: (path: string) => void;
 }
 
 export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const { user } = useAuth();
+
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [scrollY, setScrollY] = useState(0);
@@ -17,21 +34,19 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Trigger animations on page load
     setIsPageLoaded(true);
 
     const handleScroll = () => setScrollY(window.scrollY);
-    
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
 
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("mousemove", handleMouseMove);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
   }, []);
 
@@ -40,9 +55,9 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/contact/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://127.0.0.1:8000/api/contact/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
@@ -54,20 +69,19 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
 
       if (response.ok && result.success) {
         setSuccess(true);
-        setFormData({ name: '', email: '', message: '' });
+        setFormData({ name: "", email: "", message: "" });
         setTimeout(() => setSuccess(false), 5000);
       } else {
-        alert(result.error || 'Failed to send message');
+        alert(result.error || "Failed to send message");
       }
     } catch (err) {
-      alert('Error sending message');
+      alert("Error sending message");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Floating elements animation
   const FloatingElement = ({ delay, duration, children, className }: any) => (
     <div
       className={`absolute ${className}`}
@@ -79,8 +93,17 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     </div>
   );
 
-  // Particle animation component
-  const Particle = ({ x, y, size, delay }: { x: number; y: number; size: number; delay: number }) => (
+  const Particle = ({
+    x,
+    y,
+    size,
+    delay,
+  }: {
+    x: number;
+    y: number;
+    size: number;
+    delay: number;
+  }) => (
     <div
       className="absolute rounded-full bg-gradient-to-r from-purple-400 to-blue-500 opacity-60"
       style={{
@@ -93,7 +116,6 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     />
   );
 
-  // Generate particles
   const particles = Array.from({ length: 50 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
@@ -103,7 +125,10 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   }));
 
   return (
-    <div ref={containerRef} className="min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
+    <div
+      ref={containerRef}
+      className="min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative"
+    >
       <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
@@ -371,24 +396,21 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           will-change: transform;
         }
 
-        /* Section spacing fix */
         section {
           clear: both;
           width: 100%;
         }
 
-        /* Text container fixes */
         .text-center {
           display: block;
           clear: both;
         }
       `}</style>
 
-      {/* Mouse Glow Effect Container */}
       {isPageLoaded && (
         <>
-          <div 
-            className="mouse-cursor" 
+          <div
+            className="mouse-cursor"
             style={{
               left: `${mousePosition.x}px`,
               top: `${mousePosition.y}px`,
@@ -397,37 +419,38 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         </>
       )}
 
-      {/* Enhanced Animated Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <FloatingElement delay={0} duration={6} className="top-20 left-10 opacity-30">
           <div className="w-32 h-32 bg-gradient-to-br from-[#1A6AFF] to-[#3E8BFF] rounded-full blur-3xl blob-shape animate-blob"></div>
         </FloatingElement>
         <FloatingElement delay={2} duration={8} className="top-40 right-20 opacity-30">
-          <div className="w-48 h-48 bg-gradient-to-br from-[#16C47F] to-[#13ad70] rounded-full blur-3xl blob-shape animate-blob" style={{animationDirection: 'reverse'}}></div>
+          <div
+            className="w-48 h-48 bg-gradient-to-br from-[#16C47F] to-[#13ad70] rounded-full blur-3xl blob-shape animate-blob"
+            style={{ animationDirection: "reverse" }}
+          ></div>
         </FloatingElement>
         <FloatingElement delay={4} duration={7} className="bottom-40 left-1/4 opacity-30">
           <div className="w-40 h-40 bg-gradient-to-br from-[#FFA726] to-[#f59518] rounded-full blur-3xl blob-shape animate-blob"></div>
         </FloatingElement>
 
-        {/* Mouse tracking glow */}
         <div
           className="pointer-events-none"
           style={{
-            position: 'fixed',
+            position: "fixed",
             left: `${mousePosition.x}px`,
             top: `${mousePosition.y}px`,
-            width: '100px',
-            height: '100px',
-            background: 'radial-gradient(circle, rgba(26, 106, 255, 0.15) 0%, transparent 70%)',
-            borderRadius: '50%',
-            filter: 'blur(30px)',
-            transform: 'translate(-50%, -50%)',
+            width: "100px",
+            height: "100px",
+            background:
+              "radial-gradient(circle, rgba(26, 106, 255, 0.15) 0%, transparent 70%)",
+            borderRadius: "50%",
+            filter: "blur(30px)",
+            transform: "translate(-50%, -50%)",
             zIndex: 0,
             opacity: 0.5,
           }}
         ></div>
 
-        {/* Particle Animation */}
         {particles.map((particle) => (
           <Particle
             key={particle.id}
@@ -441,85 +464,158 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden z-10">
-        {/* Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#1A6AFF]/10 via-[#3E8BFF]/5 to-transparent animate-gradient"></div>
-        
-        {/* Animated Grid Pattern */}
+
         <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'linear-gradient(#1A6AFF 1px, transparent 1px), linear-gradient(90deg, #1A6AFF 1px, transparent 1px)',
-            backgroundSize: '50px 50px',
-          }}></div>
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(#1A6AFF 1px, transparent 1px), linear-gradient(90deg, #1A6AFF 1px, transparent 1px)",
+              backgroundSize: "50px 50px",
+            }}
+          ></div>
         </div>
 
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center block w-full clear-both">
-            {/* Badge */}
-            <div className={`inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[#1A6AFF]/20 mb-6 ${isPageLoaded ? 'animate-scale-in' : 'opacity-0'} hover:shadow-lg hover:shadow-[#1A6AFF]/20 transition-all duration-300`}>
-              <Sparkles size={16} className="text-[#1A6AFF] animate-spin" style={{animationDuration: '3s'}} />
-              <span className="text-sm font-semibold text-[#1A6AFF]">Trusted by 10,000+ businesses</span>
-              <Star size={16} className="text-[#FFA726] fill-[#FFA726] animate-bounce" style={{animationDuration: '2s'}} />
+            <div
+              className={`inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-[#1A6AFF]/20 mb-6 ${
+                isPageLoaded ? "animate-scale-in" : "opacity-0"
+              } hover:shadow-lg hover:shadow-[#1A6AFF]/20 transition-all duration-300`}
+            >
+              <Sparkles
+                size={16}
+                className="text-[#1A6AFF] animate-spin"
+                style={{ animationDuration: "3s" }}
+              />
+              <span className="text-sm font-semibold text-[#1A6AFF]">
+                Trusted by 10,000+ businesses
+              </span>
+              <Star
+                size={16}
+                className="text-[#FFA726] fill-[#FFA726] animate-bounce"
+                style={{ animationDuration: "2s" }}
+              />
             </div>
 
-            <h1 className={`text-5xl md:text-6xl lg:text-7xl font-bold text-[#0B1A33] mb-6 ${isPageLoaded ? 'animate-fade-in' : 'opacity-0'}`}>
+            <h1
+              className={`text-5xl md:text-6xl lg:text-7xl font-bold text-[#0B1A33] mb-6 ${
+                isPageLoaded ? "animate-fade-in" : "opacity-0"
+              }`}
+            >
               Manage Your Business
               <br />
               <span className="gradient-text-animated block mt-3">
                 Effortlessly
               </span>
             </h1>
-            
-            <p className={`text-xl text-gray-600 mb-8 max-w-3xl mx-auto block ${isPageLoaded ? 'animate-fade-in stagger-1' : 'opacity-0'}`}>
-              BizManager is your all-in-one solution for streamlined business operations. Track transactions, manage inventory, generate invoices, and gain insights with powerful analytics.
+
+            <p
+              className={`text-xl text-gray-600 mb-8 max-w-3xl mx-auto block ${
+                isPageLoaded ? "animate-fade-in stagger-1" : "opacity-0"
+              }`}
+            >
+              BizManager is your all-in-one solution for streamlined business
+              operations. Track transactions, manage inventory, generate invoices,
+              and gain insights with powerful analytics.
             </p>
-            
-            <div className={`flex flex-col sm:flex-row gap-4 justify-center items-center ${isPageLoaded ? 'animate-fade-in stagger-2' : 'opacity-0'} block w-full clear-both`}>
-              <Button 
-                onClick={() => onNavigate('/businesses')} 
-                variant="primary" 
-                size="lg" 
+
+            {/* AUTH-AWARE BUTTONS */}
+            <div
+              className={`flex flex-col sm:flex-row gap-4 justify-center items-center ${
+                isPageLoaded ? "animate-fade-in stagger-2" : "opacity-0"
+              } block w-full clear-both`}
+            >
+              <Button
+                onClick={() => onNavigate(user ? "/businesses" : "/signup")}
+                variant="primary"
+                size="lg"
                 icon={<ArrowRight size={20} className="animate-floating-arrow" />}
                 className="hover-lift shadow-lg shadow-[#1A6AFF]/30"
               >
-                Get Started Free
+                {user ? "Go to your dashboard" : "Get Started Free"}
               </Button>
-              <Button 
-                onClick={() => onNavigate('/login')} 
-                variant="outline" 
-                size="lg"
-                className="hover-lift"
-              >
-                Login
-              </Button>
+
+              {!user && (
+                <Button
+                  onClick={() => onNavigate("/login")}
+                  variant="outline"
+                  size="lg"
+                  className="hover-lift"
+                >
+                  Login
+                </Button>
+              )}
             </div>
 
-            {/* Enhanced Scroll Indicator */}
-            <div className={`mt-16 ${isPageLoaded ? 'animate-fade-in stagger-3' : 'opacity-0'} block w-full`}>
+            <div
+              className={`mt-16 ${
+                isPageLoaded ? "animate-fade-in stagger-3" : "opacity-0"
+              } block w-full`}
+            >
               <div className="inline-flex flex-col items-center gap-2 cursor-pointer opacity-50 hover:opacity-100 transition-opacity group">
-                <span className="text-sm text-gray-600 group-hover:text-[#1A6AFF] transition-colors">Scroll to explore</span>
-                <ChevronDown size={24} className="text-[#1A6AFF]" style={{animation: 'bounce-slow 2s infinite'}} />
+                <span className="text-sm text-gray-600 group-hover:text-[#1A6AFF] transition-colors">
+                  Scroll to explore
+                </span>
+                <ChevronDown
+                  size={24}
+                  className="text-[#1A6AFF]"
+                  style={{ animation: "bounce-slow 2s infinite" }}
+                />
               </div>
             </div>
           </div>
 
-          {/* Feature Cards with Enhanced Animations */}
+          {/* Feature Cards */}
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 block w-full clear-both">
             {[
-              { icon: TrendingUp, title: 'Real-time Analytics', desc: 'Track your business performance with live data and insights', gradient: 'from-[#1A6AFF] to-[#3E8BFF]', delay: 'stagger-3' },
-              { icon: FileText, title: 'Smart Invoicing', desc: 'Generate and manage professional invoices in seconds', gradient: 'from-[#16C47F] to-[#13ad70]', delay: 'stagger-4' },
-              { icon: Package, title: 'Inventory Control', desc: 'Keep track of stock levels with automated alerts', gradient: 'from-[#FFA726] to-[#f59518]', delay: 'stagger-5' },
+              {
+                icon: TrendingUp,
+                title: "Real-time Analytics",
+                desc: "Track your business performance with live data and insights",
+                gradient: "from-[#1A6AFF] to-[#3E8BFF]",
+                delay: "stagger-3",
+              },
+              {
+                icon: FileText,
+                title: "Smart Invoicing",
+                desc: "Generate and manage professional invoices in seconds",
+                gradient: "from-[#16C47F] to-[#13ad70]",
+                delay: "stagger-4",
+              },
+              {
+                icon: Package,
+                title: "Inventory Control",
+                desc: "Keep track of stock levels with automated alerts",
+                gradient: "from-[#FFA726] to-[#f59518]",
+                delay: "stagger-5",
+              },
             ].map((item, idx) => (
-              <div key={idx} className={`${isPageLoaded ? 'animate-scale-in' : 'opacity-0'} ${item.delay}`}>
-                <Card hover className="text-center hover-lift group relative overflow-hidden feature-card-gradient shadow-lg hover:shadow-xl hover:shadow-[#1A6AFF]/20 transition-all duration-300">
-                  {/* Hover Effect Background */}
-                  <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300" 
-                       style={{background: `linear-gradient(to bottom right, var(--tw-gradient-stops))`}}></div>
-                  
-                  <div className={`w-16 h-16 mx-auto mb-4 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
-                       style={{animation: 'pulse-glow 2s infinite'}}>
+              <div
+                key={idx}
+                className={`${
+                  isPageLoaded ? "animate-scale-in" : "opacity-0"
+                } ${item.delay}`}
+              >
+                <Card className="text-center hover-lift group relative overflow-hidden feature-card-gradient shadow-lg hover:shadow-xl hover:shadow-[#1A6AFF]/20 transition-all duration-300">
+                  <div
+                    className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                    style={{
+                      background:
+                        "linear-gradient(to bottom right, var(--tw-gradient-stops))",
+                    }}
+                  ></div>
+
+                  <div
+                    className={`w-16 h-16 mx-auto mb-4 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
+                    style={{ animation: "pulse-glow 2s infinite" }}
+                  >
                     <item.icon size={32} className="text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-[#0B1A33] mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-[#1A6AFF] group-hover:to-[#3E8BFF] group-hover:bg-clip-text transition-all duration-300">{item.title}</h3>
+                  <h3 className="text-xl font-bold text-[#0B1A33] mb-2 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-[#1A6AFF] group-hover:to-[#3E8BFF] group-hover:bg-clip-text transition-all duration-300">
+                    {item.title}
+                  </h3>
                   <p className="text-gray-600">{item.desc}</p>
                 </Card>
               </div>
@@ -528,8 +624,11 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* Features Section with Enhanced Parallax and Animations */}
-      <section id="services" className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10 block w-full clear-both">
+      {/* Features Section */}
+      <section
+        id="services"
+        className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10 block w-full clear-both"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 parallax-slow block w-full clear-both">
             <div className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-[#1A6AFF]/10 to-[#3E8BFF]/10 rounded-full hover:shadow-lg hover:shadow-[#1A6AFF]/20 transition-all duration-300">
@@ -539,35 +638,80 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               Powerful Features for Modern Businesses
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto block">
-              Everything you need to run your business efficiently in one platform
+              Everything you need to run your business efficiently in one
+              platform
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 block w-full clear-both">
             {[
-              { icon: BarChart3, title: 'Advanced Analytics', description: 'Visualize your data with beautiful charts and comprehensive reports', color: 'from-[#1A6AFF] to-[#3E8BFF]' },
-              { icon: FileText, title: 'Invoice Management', description: 'Create, send, and track invoices with automated payment reminders', color: 'from-[#16C47F] to-[#13ad70]' },
-              { icon: Package, title: 'Stock Management', description: 'Monitor inventory levels and receive alerts for low stock items', color: 'from-[#FFA726] to-[#f59518]' },
-              { icon: Shield, title: 'Secure & Reliable', description: 'Bank-level security to protect your sensitive business data', color: 'from-[#EF5350] to-[#e53935]' },
-              { icon: Zap, title: 'Lightning Fast', description: 'Optimized performance for seamless user experience', color: 'from-[#1A6AFF] to-[#3E8BFF]' },
-              { icon: TrendingUp, title: 'Growth Insights', description: 'Make data-driven decisions with predictive analytics', color: 'from-[#16C47F] to-[#13ad70]' },
+              {
+                icon: BarChart3,
+                title: "Advanced Analytics",
+                description:
+                  "Visualize your data with beautiful charts and comprehensive reports",
+                color: "from-[#1A6AFF] to-[#3E8BFF]",
+              },
+              {
+                icon: FileText,
+                title: "Invoice Management",
+                description:
+                  "Create, send, and track invoices with automated payment reminders",
+                color: "from-[#16C47F] to-[#13ad70]",
+              },
+              {
+                icon: Package,
+                title: "Stock Management",
+                description:
+                  "Monitor inventory levels and receive alerts for low stock items",
+                color: "from-[#FFA726] to-[#f59518]",
+              },
+              {
+                icon: Shield,
+                title: "Secure & Reliable",
+                description:
+                  "Bank-level security to protect your sensitive business data",
+                color: "from-[#EF5350] to-[#e53935]",
+              },
+              {
+                icon: Zap,
+                title: "Lightning Fast",
+                description:
+                  "Optimized performance for seamless user experience",
+                color: "from-[#1A6AFF] to-[#3E8BFF]",
+              },
+              {
+                icon: TrendingUp,
+                title: "Growth Insights",
+                description:
+                  "Make data-driven decisions with predictive analytics",
+                color: "from-[#16C47F] to-[#13ad70]",
+              },
             ].map((feature, index) => (
-              <div 
-                key={index} 
-                className={`${isPageLoaded ? 'opacity-100 animate-scale-in' : 'opacity-0'} hover-lift`}
-                style={{animationDelay: `${isPageLoaded ? index * 0.1 : 0}s`, animationFillMode: 'forwards'}}
+              <div
+                key={index}
+                className={`${
+                  isPageLoaded ? "opacity-100 animate-scale-in" : "opacity-0"
+                } hover-lift`}
+                style={{
+                  animationDelay: `${isPageLoaded ? index * 0.1 : 0}s`,
+                  animationFillMode: "forwards",
+                }}
               >
-                <Card hover className="group h-full relative overflow-hidden feature-card-gradient shadow-lg hover:shadow-xl hover:shadow-[#1A6AFF]/20 transition-all duration-300 animate-card-border">
-                  {/* Animated Border */}
+                <Card className="group h-full relative overflow-hidden feature-card-gradient shadow-lg hover:shadow-xl hover:shadow-[#1A6AFF]/20 transition-all duration-300 animate-card-border">
                   <div className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-[2px] rounded-2xl">
                     <div className="w-full h-full bg-white rounded-2xl"></div>
                   </div>
-                  
+
                   <div className="relative">
-                    <div className={`w-14 h-14 mb-4 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center text-white transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg`}>
+                    <div
+                      className={`w-14 h-14 mb-4 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center text-white transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg`}
+                    >
                       <feature.icon size={28} />
                     </div>
-                    <h3 className="text-xl font-bold text-[#0B1A33] mb-2 group-hover:text-[#1A6AFF] transition-colors">{feature.title}</h3>
+                    <h3 className="text-xl font-bold text-[#0B1A33] mb-2 group-hover:text-[#1A6AFF] transition-colors">
+                      {feature.title}
+                    </h3>
                     <p className="text-gray-600">{feature.description}</p>
                   </div>
                 </Card>
@@ -577,11 +721,14 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* About Section with Animated Stats */}
-      <section id="about" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-white relative z-10 block w-full clear-both">
+      {/* About Section */}
+      <section
+        id="about"
+        className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-white relative z-10 block w-full clear-both"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center block w-full clear-both">
-            <div className={`${isPageLoaded ? 'animate-slide-in-left' : 'opacity-0'}`}>
+            <div className={`${isPageLoaded ? "animate-slide-in-left" : "opacity-0"}`}>
               <div className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-[#1A6AFF]/10 to-[#3E8BFF]/10 rounded-full">
                 <span className="text-[#1A6AFF] font-semibold">About Us</span>
               </div>
@@ -589,36 +736,76 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 Built for Growth, Designed for Success
               </h2>
               <p className="text-lg text-gray-600 mb-6 block">
-                BizManager was created by business owners, for business owners. We understand the challenges of managing multiple aspects of your business, which is why we've built an intuitive platform that brings everything together.
+                BizManager was created by business owners, for business owners. We
+                understand the challenges of managing multiple aspects of your
+                business, which is why we've built an intuitive platform that
+                brings everything together.
               </p>
               <p className="text-lg text-gray-600 mb-8 block">
-                Whether you're a startup or an established enterprise, our scalable solution adapts to your needs, helping you focus on what matters most: growing your business.
+                Whether you're a startup or an established enterprise, our
+                scalable solution adapts to your needs, helping you focus on what
+                matters most: growing your business.
               </p>
-              <Button 
-                onClick={() => onNavigate('/businesses')} 
-                variant="primary" 
-                size="lg" 
+              <Button
+                onClick={() => onNavigate("/businesses")}
+                variant="primary"
+                size="lg"
                 icon={<ArrowRight size={20} className="animate-floating-arrow" />}
                 className="hover-lift shadow-lg shadow-[#1A6AFF]/30"
               >
                 Start Your Journey
               </Button>
             </div>
-            
-            <div className={`grid grid-cols-2 gap-6 ${isPageLoaded ? 'animate-slide-in-right' : 'opacity-0'} block w-full clear-both`}>
+
+            <div
+              className={`grid grid-cols-2 gap-6 ${
+                isPageLoaded ? "animate-slide-in-right" : "opacity-0"
+              } block w-full clear-both`}
+            >
               {[
-                { value: '10K+', label: 'Active Users', color: 'from-[#1A6AFF] to-[#3E8BFF]', delay: 'stagger-1' },
-                { value: '99.9%', label: 'Uptime', color: 'from-[#16C47F] to-[#13ad70]', delay: 'stagger-2' },
-                { value: '500K+', label: 'Transactions', color: 'from-[#FFA726] to-[#f59518]', delay: 'stagger-3' },
-                { value: '24/7', label: 'Support', color: 'from-[#EF5350] to-[#e53935]', delay: 'stagger-4' },
+                {
+                  value: "10K+",
+                  label: "Active Users",
+                  color: "from-[#1A6AFF] to-[#3E8BFF]",
+                  delay: "stagger-1",
+                },
+                {
+                  value: "99.9%",
+                  label: "Uptime",
+                  color: "from-[#16C47F] to-[#13ad70]",
+                  delay: "stagger-2",
+                },
+                {
+                  value: "500K+",
+                  label: "Transactions",
+                  color: "from-[#FFA726] to-[#f59518]",
+                  delay: "stagger-3",
+                },
+                {
+                  value: "24/7",
+                  label: "Support",
+                  color: "from-[#EF5350] to-[#e53935]",
+                  delay: "stagger-4",
+                },
               ].map((stat, idx) => (
-                <div key={idx} className={`${isPageLoaded ? 'animate-scale-in' : 'opacity-0'} ${stat.delay}`}>
+                <div
+                  key={idx}
+                  className={`${isPageLoaded ? "animate-scale-in" : "opacity-0"} ${
+                    stat.delay
+                  }`}
+                >
                   <Card className="text-center hover-lift group relative overflow-hidden feature-card-gradient shadow-lg hover:shadow-xl hover:shadow-[#1A6AFF]/20 transition-all duration-300">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-                    <div className={`text-4xl font-bold bg-gradient-to-br ${stat.color} text-transparent bg-clip-text mb-2 transform group-hover:scale-110 transition-transform`}>
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
+                    ></div>
+                    <div
+                      className={`text-4xl font-bold bg-gradient-to-br ${stat.color} text-transparent bg-clip-text mb-2 transform group-hover:scale-110 transition-transform`}
+                    >
                       {stat.value}
                     </div>
-                    <div className="text-gray-600 group-hover:text-gray-800 transition-colors">{stat.label}</div>
+                    <div className="text-gray-600 group-hover:text-gray-800 transition-colors">
+                      {stat.label}
+                    </div>
                   </Card>
                 </div>
               ))}
@@ -628,7 +815,10 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10 block w-full clear-both">
+      <section
+        id="contact"
+        className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10 block w-full clear-both"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 block w-full clear-both">
             <div className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-[#1A6AFF]/10 to-[#3E8BFF]/10 rounded-full hover:shadow-lg hover:shadow-[#1A6AFF]/20 transition-all duration-300">
@@ -638,26 +828,56 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               Get In Touch
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto block">
-              Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              Have questions? We'd love to hear from you. Send us a message and
+              we'll respond as soon as possible.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 block w-full clear-both">
             <div className="space-y-8">
               {[
-                { icon: Mail, title: 'Email Us', lines: ['info@bizmanager.com', 'support@bizmanager.com'], color: 'from-[#1A6AFF] to-[#3E8BFF]', delay: 'stagger-1' },
-                { icon: Phone, title: 'Call Us', lines: ['+1 (555) 123-4567', 'Mon-Fri 9am-6pm EST'], color: 'from-[#16C47F] to-[#13ad70]', delay: 'stagger-2' },
-                { icon: MapPin, title: 'Visit Us', lines: ['123 Business Street, Suite 100', 'New York, NY 10001'], color: 'from-[#FFA726] to-[#f59518]', delay: 'stagger-3' },
+                {
+                  icon: Mail,
+                  title: "Email Us",
+                  lines: ["info@bizmanager.com", "support@bizmanager.com"],
+                  color: "from-[#1A6AFF] to-[#3E8BFF]",
+                  delay: "stagger-1",
+                },
+                {
+                  icon: Phone,
+                  title: "Call Us",
+                  lines: ["+216 26 805 311", "Mon-Fri 9am-6pm EST"],
+                  color: "from-[#16C47F] to-[#13ad70]",
+                  delay: "stagger-2",
+                },
+                {
+                  icon: MapPin,
+                  title: "Visit Us",
+                  lines: ["Technopole Ghazella", "Ariana, Tunisia"],
+                  color: "from-[#FFA726] to-[#f59518]",
+                  delay: "stagger-3",
+                },
               ].map((contact, idx) => (
-                <div key={idx} className={`${isPageLoaded ? 'animate-slide-in-left' : 'opacity-0'} ${contact.delay}`}>
-                  <Card hover className="flex items-start gap-4 hover-lift group feature-card-gradient shadow-lg hover:shadow-xl hover:shadow-[#1A6AFF]/20 transition-all duration-300">
-                    <div className={`w-12 h-12 bg-gradient-to-br ${contact.color} rounded-xl flex items-center justify-center flex-shrink-0 transform group-hover:scale-110 group-hover:rotate-6 transition-all shadow-lg`}>
+                <div
+                  key={idx}
+                  className={`${
+                    isPageLoaded ? "animate-slide-in-left" : "opacity-0"
+                  } ${contact.delay}`}
+                >
+                  <Card className="flex items-start gap-4 hover-lift group feature-card-gradient shadow-lg hover:shadow-xl hover:shadow-[#1A6AFF]/20 transition-all duration-300">
+                    <div
+                      className={`w-12 h-12 bg-gradient-to-br ${contact.color} rounded-xl flex items-center justify-center flex-shrink-0 transform group-hover:scale-110 group-hover:rotate-6 transition-all shadow-lg`}
+                    >
                       <contact.icon size={24} className="text-white" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-[#0B1A33] mb-1">{contact.title}</h3>
+                      <h3 className="font-bold text-[#0B1A33] mb-1">
+                        {contact.title}
+                      </h3>
                       {contact.lines.map((line, i) => (
-                        <p key={i} className="text-gray-600">{line}</p>
+                        <p key={i} className="text-gray-600">
+                          {line}
+                        </p>
                       ))}
                     </div>
                   </Card>
@@ -665,7 +885,11 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               ))}
             </div>
 
-            <div className={`${isPageLoaded ? 'animate-slide-in-right stagger-4' : 'opacity-0'} block w-full clear-both`}>
+            <div
+              className={`${
+                isPageLoaded ? "animate-slide-in-right stagger-4" : "opacity-0"
+              } block w-full clear-both`}
+            >
               <Card className="hover-lift shadow-lg feature-card-gradient">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="group">
@@ -673,7 +897,9 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                       type="text"
                       placeholder="Your Name"
                       value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
                       required
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none transition-all group-hover:border-gray-300 focus:shadow-lg focus:shadow-[#1A6AFF]/20"
                     />
@@ -683,7 +909,9 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                       type="email"
                       placeholder="Your Email"
                       value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
                       required
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none transition-all group-hover:border-gray-300 focus:shadow-lg focus:shadow-[#1A6AFF]/20"
                     />
@@ -693,7 +921,9 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                       rows={5}
                       placeholder="Your Message"
                       value={formData.message}
-                      onChange={(e) => setFormData({...formData, message: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, message: e.target.value })
+                      }
                       required
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none transition-all resize-none group-hover:border-gray-300 focus:shadow-lg focus:shadow-[#1A6AFF]/20"
                     ></textarea>
@@ -701,16 +931,20 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                   {success && (
                     <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-xl animate-scale-in shadow-lg">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <p className="text-green-600 font-semibold">Message sent successfully!</p>
+                      <p className="text-green-600 font-semibold">
+                        Message sent successfully!
+                      </p>
                     </div>
                   )}
-                  <Button 
-                    variant="primary" 
-                    size="lg" 
+                  <Button
+                    variant="primary"
+                    size="lg"
                     className="w-full hover-lift relative overflow-hidden group shadow-lg shadow-[#1A6AFF]/30"
                     disabled={loading}
                   >
-                    <span className="relative z-10">{loading ? 'Sending...' : 'Send Message'}</span>
+                    <span className="relative z-10">
+                      {loading ? "Sending..." : "Send Message"}
+                    </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-[#1A6AFF] to-[#3E8BFF] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   </Button>
                 </form>
@@ -720,17 +954,19 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* CTA Section with Enhanced Animated Background */}
+      {/* CTA Section */}
       <section className="relative py-16 px-4 sm:px-6 lg:px-8 overflow-hidden z-10 block w-full clear-both">
         <div className="absolute inset-0 bg-gradient-to-r from-[#1A6AFF] to-[#3E8BFF] animate-gradient"></div>
-        
-        {/* Animated Shapes */}
+
         <div className="absolute inset-0 opacity-20">
           <FloatingElement delay={0} duration={8} className="top-10 left-10">
             <div className="w-20 h-20 border-4 border-white rounded-full animate-blob"></div>
           </FloatingElement>
           <FloatingElement delay={2} duration={10} className="top-20 right-20">
-            <div className="w-16 h-16 border-4 border-white rounded-lg transform rotate-45 animate-blob" style={{animationDirection: 'reverse'}}></div>
+            <div
+              className="w-16 h-16 border-4 border-white rounded-lg transform rotate-45 animate-blob"
+              style={{ animationDirection: "reverse" }}
+            ></div>
           </FloatingElement>
           <FloatingElement delay={4} duration={9} className="bottom-10 left-1/3">
             <div className="w-12 h-12 bg-white rounded-full animate-blob"></div>
@@ -738,17 +974,17 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         </div>
 
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className={`${isPageLoaded ? 'animate-scale-in' : 'opacity-0'}`}>
+          <div className={isPageLoaded ? "animate-scale-in" : "opacity-0"}>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 animate-glow-pulse block">
               Ready to Transform Your Business?
             </h2>
             <p className="text-xl text-white/90 mb-8 block">
               Join thousands of businesses already using BizManager
             </p>
-            <Button 
-              onClick={() => onNavigate('/businesses')} 
-              variant="outline" 
-              size="lg" 
+            <Button
+              onClick={() => onNavigate("/businesses")}
+              variant="outline"
+              size="lg"
               className="bg-white text-[#1A6AFF] hover:bg-gray-50 hover-lift shadow-xl"
             >
               Get Started Today

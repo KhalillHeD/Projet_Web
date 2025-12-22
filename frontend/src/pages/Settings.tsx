@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Save, Trash2 } from 'lucide-react';
-import { Sidebar } from '../layouts/Sidebar';
-import { Breadcrumb } from '../layouts/Breadcrumb';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { Input } from '../components/Input';
-import { Modal } from '../components/Modal';
+import React, { useState, useEffect } from "react";
+import { Save, Trash2 } from "lucide-react";
+import { Sidebar } from "../layouts/Sidebar";
+import { Breadcrumb } from "../layouts/Breadcrumb";
+import { Card } from "../components/Card";
+import { Button } from "../components/Button";
+import { Input } from "../components/Input";
+import { Modal } from "../components/Modal";
+import { useAuth } from "../context/AuthContext";
 
 interface SettingsProps {
   businessId: string;
@@ -31,61 +32,76 @@ interface Business {
 }
 
 export const Settings: React.FC<SettingsProps> = ({ businessId, onNavigate }) => {
+  const { accessToken } = useAuth();
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [business, setBusiness] = useState<Business | null>(null);
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: '',
-    tagline: '',
-    industry: '',
-    description: '',
-    logo: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    postal_code: '',
-    country: '',
+    name: "",
+    tagline: "",
+    industry: "",
+    description: "",
+    logo: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    postal_code: "",
+    country: "",
   });
 
   // Fetch business and contact info
   useEffect(() => {
     const fetchBusiness = async () => {
+      if (!accessToken) return;
       setLoading(true);
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/businesses/${businessId}/`);
+        const res = await fetch(
+          `http://127.0.0.1:8000/api/businesses/${businessId}/`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        if (!res.ok) {
+          console.error("Error fetching business:", await res.text());
+          return;
+        }
         const data = await res.json();
         setBusiness(data);
         setFormData({
-          name: data.name || '',
-          tagline: data.tagline || '',
-          industry: data.industry || '',
-          description: data.description || '',
-          logo: data.logo || '',
-          email: data.contact_info?.email || '',
-          phone: data.contact_info?.phone || '',
-          address: data.contact_info?.address || '',
-          city: data.contact_info?.city || '',
-          state: data.contact_info?.state || '',
-          postal_code: data.contact_info?.postal_code || '',
-          country: data.contact_info?.country || '',
+          name: data.name || "",
+          tagline: data.tagline || "",
+          industry: data.industry || "",
+          description: data.description || "",
+          logo: data.logo || "",
+          email: data.contact_info?.email || "",
+          phone: data.contact_info?.phone || "",
+          address: data.contact_info?.address || "",
+          city: data.contact_info?.city || "",
+          state: data.contact_info?.state || "",
+          postal_code: data.contact_info?.postal_code || "",
+          country: data.contact_info?.country || "",
         });
       } catch (err) {
-        console.error('Error fetching business:', err);
+        console.error("Error fetching business:", err);
       } finally {
         setLoading(false);
       }
     };
     fetchBusiness();
-  }, [businessId]);
+  }, [businessId, accessToken]);
 
   // Update business + contact info
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!business) return;
+    if (!business || !accessToken) return;
 
     const payload = {
       name: formData.name,
@@ -104,67 +120,95 @@ export const Settings: React.FC<SettingsProps> = ({ businessId, onNavigate }) =>
     };
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/businesses/${businessId}/`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error('Failed to update business info');
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/businesses/${businessId}/`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      if (!res.ok) {
+        console.error("Update error:", await res.text());
+        throw new Error("Failed to update business info");
+      }
       const updated = await res.json();
       setBusiness(updated);
-      alert('Business updated successfully!');
+      alert("Business updated successfully!");
     } catch (err) {
       console.error(err);
-      alert('Error updating business info');
+      alert("Error updating business info");
     }
   };
 
   // Upload logo
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.[0] || !business) return;
+    if (!e.target.files?.[0] || !business || !accessToken) return;
     const file = e.target.files[0];
 
     const formDataToSend = new FormData();
-    formDataToSend.append('logo', file);
-    formDataToSend.append('name', formData.name);
-    formDataToSend.append('tagline', formData.tagline);
-    formDataToSend.append('industry', formData.industry);
-    formDataToSend.append('description', formData.description);
-    // Append contact_info fields
-    formDataToSend.append('contact_info[email]', formData.email);
-    formDataToSend.append('contact_info[phone]', formData.phone);
-    formDataToSend.append('contact_info[address]', formData.address);
-    formDataToSend.append('contact_info[city]', formData.city);
-    formDataToSend.append('contact_info[state]', formData.state);
-    formDataToSend.append('contact_info[postal_code]', formData.postal_code);
-    formDataToSend.append('contact_info[country]', formData.country);
+    formDataToSend.append("logo", file);
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("tagline", formData.tagline);
+    formDataToSend.append("industry", formData.industry);
+    formDataToSend.append("description", formData.description);
+    formDataToSend.append("contact_info[email]", formData.email);
+    formDataToSend.append("contact_info[phone]", formData.phone);
+    formDataToSend.append("contact_info[address]", formData.address);
+    formDataToSend.append("contact_info[city]", formData.city);
+    formDataToSend.append("contact_info[state]", formData.state);
+    formDataToSend.append("contact_info[postal_code]", formData.postal_code);
+    formDataToSend.append("contact_info[country]", formData.country);
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/businesses/${businessId}/`, {
-        method: 'PUT',
-        body: formDataToSend,
-      });
-      if (!res.ok) throw new Error('Failed to update logo');
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/businesses/${businessId}/`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: formDataToSend,
+        }
+      );
+      if (!res.ok) {
+        console.error("Logo update error:", await res.text());
+        throw new Error("Failed to update logo");
+      }
       const updated = await res.json();
       setBusiness(updated);
-      setFormData({ ...formData, logo: updated.logo || '' });
-      alert('Logo updated successfully!');
+      setFormData({ ...formData, logo: updated.logo || "" });
+      alert("Logo updated successfully!");
     } catch (err) {
       console.error(err);
-      alert('Error updating logo');
+      alert("Error updating logo");
     }
   };
 
   // Delete business
   const handleDelete = async () => {
+    if (!accessToken) return;
     try {
-      await fetch(`http://127.0.0.1:8000/api/businesses/${businessId}/`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/businesses/${businessId}/`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      if (!res.ok) {
+        console.error("Delete error:", await res.text());
+        throw new Error("Failed to delete business");
+      }
       setShowDeleteModal(false);
-      onNavigate('/businesses');
+      onNavigate("/businesses");
     } catch (err) {
-      console.error('Error deleting business:', err);
+      console.error("Error deleting business:", err);
     }
   };
 
@@ -180,64 +224,90 @@ export const Settings: React.FC<SettingsProps> = ({ businessId, onNavigate }) =>
         businessId={businessId}
       />
 
-      <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'} p-8`}>
+      <div
+        className={`transition-all duration-300 ${
+          sidebarOpen ? "ml-64" : "ml-20"
+        } p-8`}
+      >
         <div className="max-w-4xl mx-auto">
           <Breadcrumb
             items={[
-              { label: 'Home', path: '/' },
-              { label: 'Businesses', path: '/businesses' },
+              { label: "Home", path: "/" },
+              { label: "Businesses", path: "/businesses" },
               { label: business.name, path: `/business/${businessId}` },
-              { label: 'Settings' },
+              { label: "Settings" },
             ]}
             onNavigate={onNavigate}
           />
 
-          <h1 className="text-3xl font-bold text-[#0B1A33] mt-4">Business Settings</h1>
+          <h1 className="text-3xl font-bold text-[#0B1A33] mt-4">
+            Business Settings
+          </h1>
 
           {/* Business Info */}
           <Card className="mb-6">
-            <h2 className="text-xl font-bold text-[#0B1A33] mb-6">Business Information</h2>
+            <h2 className="text-xl font-bold text-[#0B1A33] mb-6">
+              Business Information
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="flex items-center gap-6">
                 <div className="w-24 h-24 bg-gray-200 rounded-2xl flex items-center justify-center text-5xl">
                   {formData.logo ? (
-                    <img src={formData.logo} alt="logo" className="w-full h-full object-cover rounded-2xl" />
+                    <img
+                      src={formData.logo}
+                      alt="logo"
+                      className="w-full h-full object-cover rounded-2xl"
+                    />
                   ) : (
-                    'Logo'
+                    "Logo"
                   )}
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-2">Business Logo</p>
-                  <input type="file" accept="image/*" onChange={handleLogoChange} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                  />
                 </div>
               </div>
 
               <Input
                 label="Business Name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 required
               />
 
               <Input
                 label="Tagline"
                 value={formData.tagline}
-                onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, tagline: e.target.value })
+                }
               />
 
               <Input
                 label="Industry"
                 value={formData.industry}
-                onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, industry: e.target.value })
+                }
               />
 
               <div>
-                <label className="block text-sm font-medium text-[#0B1A33] mb-2">Description</label>
+                <label className="block text-sm font-medium text-[#0B1A33] mb-2">
+                  Description
+                </label>
                 <textarea
                   rows={4}
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                 />
               </div>
 
@@ -249,47 +319,66 @@ export const Settings: React.FC<SettingsProps> = ({ businessId, onNavigate }) =>
 
           {/* Contact Info */}
           <Card className="mb-6">
-            <h2 className="text-xl font-bold text-[#0B1A33] mb-6">Contact Information</h2>
+            <h2 className="text-xl font-bold text-[#0B1A33] mb-6">
+              Contact Information
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
                 label="Email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
               />
               <Input
                 label="Phone"
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
               />
               <Input
                 label="Address"
                 value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
               />
               <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="City"
                   value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, city: e.target.value })
+                  }
                 />
                 <Input
                   label="State/Province"
                   value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, state: e.target.value })
+                  }
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="Postal Code"
                   value={formData.postal_code}
-                  onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      postal_code: e.target.value,
+                    })
+                  }
                 />
                 <Input
                   label="Country"
                   value={formData.country}
-                  onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, country: e.target.value })
+                  }
                 />
               </div>
 
@@ -301,26 +390,47 @@ export const Settings: React.FC<SettingsProps> = ({ businessId, onNavigate }) =>
 
           {/* Danger Zone */}
           <Card className="border-2 border-[#EF5350]/20 bg-[#EF5350]/5">
-            <h2 className="text-xl font-bold text-[#EF5350] mb-4">Danger Zone</h2>
+            <h2 className="text-xl font-bold text-[#EF5350] mb-4">
+              Danger Zone
+            </h2>
             <p className="text-gray-600 mb-4">
-              Once you delete a business, there is no going back. Please be certain.
+              Once you delete a business, there is no going back. Please be
+              certain.
             </p>
-            <Button variant="error" icon={<Trash2 size={20} />} onClick={() => setShowDeleteModal(true)}>
+            <Button
+              variant="error"
+              icon={<Trash2 size={20} />}
+              onClick={() => setShowDeleteModal(true)}
+            >
               Delete Business
             </Button>
           </Card>
 
           {/* Delete Modal */}
-          <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Business" size="sm">
+          <Modal
+            isOpen={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            title="Delete Business"
+            size="sm"
+          >
             <div className="space-y-4">
               <p className="text-gray-600">
-                Are you sure you want to delete <strong>{business.name}</strong>? This action cannot be undone.
+                Are you sure you want to delete{" "}
+                <strong>{business.name}</strong>? This action cannot be undone.
               </p>
               <div className="flex gap-3">
-                <Button variant="error" className="flex-1" onClick={handleDelete}>
+                <Button
+                  variant="error"
+                  className="flex-1"
+                  onClick={handleDelete}
+                >
                   Delete
                 </Button>
-                <Button variant="outline" className="flex-1" onClick={() => setShowDeleteModal(false)}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowDeleteModal(false)}
+                >
                   Cancel
                 </Button>
               </div>

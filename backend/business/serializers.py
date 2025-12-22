@@ -11,40 +11,43 @@ class ContactInfoSerializer(serializers.ModelSerializer):
         fields = ['email', 'phone', 'address', 'city', 'state', 'postal_code', 'country']
 
 
-
-
 class BusinessSerializer(serializers.ModelSerializer):
     contact_info = ContactInfoSerializer(required=False)
 
     class Meta:
         model = Business
-        fields = ['id', 'name', 'description', 'logo', 'tagline', 'industry', 'contact_info']
+        fields = ["id", "name", "description", "logo", "tagline", "industry", "contact_info"]
 
-    def create(self, validated_data):
-        # Handle contact_info manually from initial_data because FormData sends strings
-        contact_data = {}
-        for field in ['email', 'phone', 'address', 'city', 'state', 'postal_code', 'country']:
-            key = f'contact_info[{field}]'
+    def _extract_contact_data(self, validated_data):
+        """
+        Support both JSON (nested dict) and FormData (contact_info[field]) shapes.
+        """
+        # JSON body: contact_info is already a dict in validated_data
+        contact_data = validated_data.pop("contact_info", None) or {}
+
+        # FormData body: contact_info[email], contact_info[phone], ...
+        for field in ["email", "phone", "address", "city", "state", "postal_code", "country"]:
+            key = f"contact_info[{field}]"
             if key in self.initial_data:
                 contact_data[field] = self.initial_data[key]
 
+        # Strip empty strings so you do not overwrite with blanks unless provided
+        contact_data = {k: v for k, v in contact_data.items() if v is not None}
+        return contact_data
+
+    def create(self, validated_data):
+        contact_data = self._extract_contact_data(validated_data)
         business = super().create(validated_data)
         if contact_data:
-            ContactInfo.objects.create(business=business, **contact_data)
+            ContactInfo.objects.update_or_create(business=business, defaults=contact_data)
         return business
 
     def update(self, instance, validated_data):
-        contact_data = {}
-        for field in ['email', 'phone', 'address', 'city', 'state', 'postal_code', 'country']:
-            key = f'contact_info[{field}]'
-            if key in self.initial_data:
-                contact_data[field] = self.initial_data[key]
-
+        contact_data = self._extract_contact_data(validated_data)
         instance = super().update(instance, validated_data)
         if contact_data:
             ContactInfo.objects.update_or_create(business=instance, defaults=contact_data)
         return instance
-
     
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:

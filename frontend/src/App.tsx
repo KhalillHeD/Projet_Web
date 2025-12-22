@@ -12,6 +12,9 @@ import { Transactions } from './pages/Transactions';
 import { Billing } from './pages/Billing';
 import { Stock } from './pages/Stock';
 import { Settings } from './pages/Settings';
+import { ForgotPassword } from './pages/ForgotPassword';
+import { ResetPassword } from "./pages/ResetPassword";
+import { Profile } from "./pages/Profile";
 
 function App() {
   const { currentPath, navigate } = useRouter();
@@ -38,7 +41,15 @@ function App() {
     if (currentPath === '/businesses') {
       return <Businesses onNavigate={navigate} />;
     }
-
+    if (currentPath === "/profile") {
+      return <Profile onNavigate={navigate} />;
+    }
+    if (currentPath === "/reset-password") {
+      return <ResetPassword onNavigate={navigate} />;
+    }
+    if (currentPath === '/forgot-password') {
+      return <ForgotPassword onNavigate={navigate} />;
+    }
     const dashboardMatch = matchRoute('/business/:id', currentPath);
     if (dashboardMatch.match && currentPath === `/business/${dashboardMatch.params.id}`) {
       return <Dashboard businessId={dashboardMatch.params.id} onNavigate={navigate} />;

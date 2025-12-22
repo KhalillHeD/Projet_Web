@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    "djoser",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  
@@ -174,3 +175,4 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'bizmanager08@gmail.com'  # Ton adresse Gmail
 EMAIL_HOST_PASSWORD = 'ljhr sadz cwhh hrek'    # Le mot de passe spécifique à l'application généré par Google
 DEFAULT_FROM_EMAIL = 'bizmanager08@gmail.com'
+FRONTEND_URL = 'http://localhost:5173' 

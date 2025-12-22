@@ -1,3 +1,4 @@
+# main urls.py
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
@@ -9,18 +10,14 @@ from api.views import RegisterView, MeView
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # 🔹 AUTH ENDPOINTS
+    # AUTH ENDPOINTS
     path("api/auth/register/", RegisterView.as_view(), name="auth_register"),
     path("api/auth/me/", MeView.as_view(), name="auth_me"), 
     path("api/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"), 
     path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    # 🔹 SECURED API
+
     path("api/", include("business.urls")),  # Your business app endpoints including /contact/
 
-    # 🔹 Contact endpoint if not included in business.urls
-    # path("api/contact/", contact_us, name="contact_us"),
-
-    # Redirect root to /api/
     path("", lambda request: redirect("/api/")),
 ]
 

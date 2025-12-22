@@ -4,7 +4,7 @@ import { Businesses } from "../pages/Businesses";
 import { Login } from "../pages/Login";
 import { matchRoute } from "../utils/router";
 import { useAuth } from "../context/AuthContext";
-
+import { ForgotPassword } from "../pages/ForgotPassword";
 
 export const Router: React.FC = () => {
   const [currentPath, setCurrentPath] = useState("/signup"); 
@@ -44,7 +44,10 @@ export const Router: React.FC = () => {
     if (matchRoute("/businesses", currentPath).match) {
       return <Businesses onNavigate={handleNavigate} />;
     }
-
+    if (matchRoute("/forgot-password", currentPath).match) {
+      return <ForgotPassword onNavigate={handleNavigate} />;
+    }
+    
     const businessMatch = matchRoute("/business/:id", currentPath);
     if (businessMatch.match) {
       const { params } = businessMatch;
