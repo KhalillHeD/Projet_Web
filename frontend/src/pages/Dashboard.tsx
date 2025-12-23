@@ -253,20 +253,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   if (loading)
     return (
-      <p className="text-center mt-20 text-gray-600">
+      <p className="text-center mt-20" style={{ color: 'var(--muted)' }}>
         Loading dashboard...
       </p>
     );
 
   if (error)
     return (
-      <p className="text-center mt-20 text-red-500">
+      <p className="text-center mt-20" style={{ color: 'var(--error)' }}>
         {error}
       </p>
     );
 
   return (
-    <div className="min-h-screen bg-[#F5F8FF]">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -301,10 +301,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   />
                 )}
                 <div>
-                  <h1 className="text-3xl font-bold text-[#0B1A33]">
+                  <h1 className="text-3xl font-bold" style={{ color: 'var(--text)' }}>
                     {business?.name}
                   </h1>
-                  <p className="text-gray-600">{business?.tagline}</p>
+                  <p style={{ color: 'var(--muted)' }}>{business?.tagline}</p>
                 </div>
               </div>
             </div>
@@ -326,7 +326,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               value={`$${totalRevenue.toLocaleString()}`}
               trend={12.5}
               icon={<DollarSign size={28} />}
-              color="from-[#1A6AFF] to-[#3E8BFF]"
+              color="from-[color:var(--secondary)] to-[color:var(--primary)]"
               delay={0}
             />
             <KPICard
@@ -334,7 +334,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               value={`$${monthlyRevenue.toLocaleString()}`}
               trend={8.3}
               icon={<TrendingUp size={28} />}
-              color="from-[#16C47F] to-[#13ad70]"
+              color="from-[color:var(--success)] to-[color:var(--success)]"
               delay={100}
             />
             <KPICard
@@ -342,14 +342,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
               value={transactions.length}
               trend={5.2}
               icon={<Receipt size={28} />}
-              color="from-[#FFA726] to-[#f59518]"
+              color="from-[color:var(--warning)] to-[color:var(--warning)]"
               delay={200}
             />
             <KPICard
               title="Pending Invoices"
               value={pendingInvoices}
               icon={<FileText size={28} />}
-              color="from-[#3E8BFF] to-[#1A6AFF]"
+              color="from-[color:var(--primary)] to-[color:var(--secondary)]"
               delay={300}
             />
           </div>
@@ -360,21 +360,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
               title="Stock Alerts"
               value={lowStockItemsCount}
               icon={<AlertTriangle size={28} />}
-              color="from-[#EF5350] to-[#e53935]"
+              color="from-[color:var(--error)] to-[color:var(--error)]"
               delay={400}
             />
             <KPICard
               title="Total Invoices"
               value={invoices.length}
               icon={<FileText size={28} />}
-              color="from-[#16C47F] to-[#13ad70]"
+              color="from-[color:var(--success)] to-[color:var(--success)]"
               delay={500}
             />
             <KPICard
               title="Stock Items"
               value={stockItems.length}
               icon={<Package size={28} />}
-              color="from-[#FFA726] to-[#f59518]"
+              color="from-[color:var(--warning)] to-[color:var(--warning)]"
               delay={600}
             />
             <KPICard
@@ -382,7 +382,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               value={`$${totalExpenses.toLocaleString()}`}
               trend={-3.2}
               icon={<DollarSign size={28} />}
-              color="from-[#EF5350] to-[#e53935]"
+              color="from-[color:var(--error)] to-[color:var(--error)]"
               delay={700}
             />
           </div>
@@ -403,7 +403,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
           {/* Quick Actions */}
           <div className="mb-8">
-            <h3 className="text-xl font-bold text-[#0B1A33] mb-4">
+            <h3 className="text-xl font-bold mb-4" style={{ color: 'var(--text)' }}>
               Quick Actions
             </h3>
             <QuickActionBar onAction={handleQuickAction} />
@@ -434,10 +434,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
             required
           />
           <div>
-            <label className="block text-sm font-medium text-[#0B1A33] mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text)' }}>
               Type
             </label>
-            <select className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none">
+            <select className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none" onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--secondary)')} onBlur={(e) => (e.currentTarget.style.borderColor = '')}>
               <option>Income</option>
               <option>Expense</option>
             </select>

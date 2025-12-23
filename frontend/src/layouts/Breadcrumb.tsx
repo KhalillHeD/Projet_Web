@@ -20,7 +20,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, onNavigate }) => 
           {item.path ? (
             <button
               onClick={() => onNavigate(item.path)}
-              className="text-[#1A6AFF] hover:underline transition-all"
+              className="text-[color:var(--secondary)] hover:underline transition-all"
             >
               {item.label}
             </button>

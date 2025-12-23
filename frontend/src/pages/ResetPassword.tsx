@@ -79,17 +79,17 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-[#1A6AFF]/10 via-[#3E8BFF]/5 to-transparent">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: 'var(--background)' }}>
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#1A6AFF] to-[#3E8BFF] rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(90deg, var(--secondary), var(--primary))' }}>
               <Building2 size={28} className="text-white" />
             </div>
-            <span className="text-3xl font-bold text-[#0B1A33]">BizManager</span>
+            <span className="text-3xl font-bold" style={{ color: 'var(--text)' }}>BizManager</span>
           </div>
-          <h1 className="text-3xl font-bold text-[#0B1A33] mb-2">Reset password</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text)' }}>Reset password</h1>
+          <p style={{ color: 'var(--muted)' }}>
             Choose a new password for your account.
           </p>
         </div>
@@ -138,7 +138,8 @@ export const ResetPassword: React.FC<ResetPasswordProps> = ({ onNavigate }) => {
             Remembered your password?{" "}
             <button
               onClick={() => onNavigate("/login")}
-              className="text-[#1A6AFF] font-medium hover:underline"
+              className="font-medium hover:underline"
+              style={{ color: 'var(--secondary)' }}
             >
               Back to login
             </button>

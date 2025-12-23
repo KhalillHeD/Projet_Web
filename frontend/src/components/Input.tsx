@@ -9,15 +9,15 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 export const Input: React.FC<InputProps> = ({ label, error, icon, className = '', ...props }) => {
   return (
     <div className="w-full">
-      {label && <label className="block text-sm font-medium text-[#0B1A33] mb-2">{label}</label>}
+      {label && <label className="block text-sm font-medium mb-2" style={{ color: 'var(--muted)' }}>{label}</label>}
       <div className="relative">
-        {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{icon}</div>}
+        {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted)' }}>{icon}</div>}
         <input
-          className={`w-full px-4 py-3 ${icon ? 'pl-10' : ''} rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none transition-all duration-300 bg-white text-[#0B1A33] ${className}`}
+          className={`w-full px-4 py-3 ${icon ? 'pl-10' : ''} rounded-xl border-2 border-transparent focus:border-[color:var(--secondary)] focus:outline-none transition-all duration-300 bg-card text-[color:var(--text)] ${className}`}
           {...props}
         />
       </div>
-      {error && <p className="mt-1 text-sm text-[#EF5350]">{error}</p>}
+      {error && <p className="mt-1 text-sm" style={{ color: 'var(--error)' }}>{error}</p>}
     </div>
   );
 };

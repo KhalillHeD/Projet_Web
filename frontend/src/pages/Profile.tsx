@@ -14,7 +14,7 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F8FF]">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--background)' }}>
         <div>Loading profile...</div>
       </div>
     );
@@ -29,25 +29,25 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate }) => {
   const initial = user.username?.charAt(0)?.toUpperCase() || "?";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F5F8FF] px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: 'var(--background)' }}>
       <div className="w-full max-w-md">
         <Card className="p-6">
           {/* Profile picture + name */}
           <div className="flex items-center gap-4 mb-6">
             {/* Profile image: replace this block with an <img> when you have user.avatar */}
-            <div className="w-16 h-16 rounded-full bg-[#1A6AFF]/10 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-secondary-10 flex items-center justify-center">
               {/* If you have an avatar URL on user, use: 
                   <img src={user.avatar} className="w-full h-full rounded-full object-cover" /> */}
-              <span className="text-xl font-bold text-[#1A6AFF]">
+              <span className="text-xl font-bold" style={{ color: 'var(--secondary)' }}>
                 {initial}
               </span>
             </div>
 
             <div>
-              <h1 className="text-2xl font-bold text-[#0B1A33]">
+              <h1 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>
                 {user.username}
               </h1>
-              <p className="text-gray-500 text-sm">Your BizManager account</p>
+              <p className="text-sm" style={{ color: 'var(--muted)' }}>Your BizManager account</p>
             </div>
           </div>
 
@@ -56,8 +56,8 @@ export const Profile: React.FC<ProfileProps> = ({ onNavigate }) => {
             <div className="flex items-center gap-3">
               <Mail size={18} className="text-gray-400" />
               <div>
-                <p className="text-xs text-gray-500">Email</p>
-                <p className="text-sm text-[#0B1A33]">
+                <p className="text-xs" style={{ color: 'var(--muted)' }}>Email</p>
+                <p className="text-sm" style={{ color: 'var(--text)' }}>
                   {user.email || "Not set"}
                 </p>
               </div>

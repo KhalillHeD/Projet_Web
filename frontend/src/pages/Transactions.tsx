@@ -150,11 +150,11 @@ export const Transactions: React.FC<TransactionsProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-[#16C47F]/10 text-[#16C47F]";
+        return "bg-success-10 text-success";
       case "pending":
-        return "bg-[#FFA726]/10 text-[#FFA726]";
+        return "bg-warning-10 text-warning";
       case "cancelled":
-        return "bg-[#EF5350]/10 text-[#EF5350]";
+        return "bg-[color:var(--error)]/10 text-[color:var(--error)]";
       default:
         return "bg-gray-100 text-gray-600";
     }
@@ -175,7 +175,7 @@ export const Transactions: React.FC<TransactionsProps> = ({
     );
 
   return (
-    <div className="min-h-screen bg-[#F5F8FF]">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -200,7 +200,7 @@ export const Transactions: React.FC<TransactionsProps> = ({
               onNavigate={onNavigate}
             />
             <div className="flex items-center justify-between mt-4">
-              <h1 className="text-3xl font-bold text-[#0B1A33]">
+              <h1 className="text-3xl font-bold" style={{ color: 'var(--text)' }}>
                 Transactions
               </h1>
               <Button
@@ -217,7 +217,7 @@ export const Transactions: React.FC<TransactionsProps> = ({
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
                 <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--muted)]"
                   size={20}
                 />
                 <input
@@ -225,7 +225,7 @@ export const Transactions: React.FC<TransactionsProps> = ({
                   placeholder="Search transactions..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-[rgba(255,255,255,0.06)]"
                 />
               </div>
               <div className="flex gap-2">
@@ -233,8 +233,8 @@ export const Transactions: React.FC<TransactionsProps> = ({
                   onClick={() => setFilterType("all")}
                   className={`px-4 py-3 rounded-xl ${
                     filterType === "all"
-                      ? "bg-[#1A6AFF] text-white"
-                      : "bg-white border-gray-200 border-2"
+                      ? "bg-[color:var(--secondary)] text-white"
+                      : "bg-card border-[rgba(255,255,255,0.06)] border-2"
                   }`}
                 >
                   All
@@ -243,8 +243,8 @@ export const Transactions: React.FC<TransactionsProps> = ({
                   onClick={() => setFilterType("income")}
                   className={`px-4 py-3 rounded-xl ${
                     filterType === "income"
-                      ? "bg-[#16C47F] text-white"
-                      : "bg-white border-gray-200 border-2"
+                      ? "bg-[color:var(--success)] text-white"
+                      : "bg-card border-[rgba(255,255,255,0.06)] border-2"
                   }`}
                 >
                   Income
@@ -253,8 +253,8 @@ export const Transactions: React.FC<TransactionsProps> = ({
                   onClick={() => setFilterType("expense")}
                   className={`px-4 py-3 rounded-xl ${
                     filterType === "expense"
-                      ? "bg-[#EF5350] text-white"
-                      : "bg-white border-gray-200 border-2"
+                      ? "bg-[color:var(--error)] text-white"
+                      : "bg-card border-[rgba(255,255,255,0.06)] border-2"
                   }`}
                 >
                   Expense
@@ -276,8 +276,8 @@ export const Transactions: React.FC<TransactionsProps> = ({
                     <div
                       className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                         t.type === "income"
-                          ? "bg-gradient-to-br from-[#16C47F] to-[#13ad70]"
-                          : "bg-gradient-to-br from-[#EF5350] to-[#e53935]"
+                          ? "bg-gradient-to-br from-[color:var(--success)] to-[color:var(--success)]"
+                          : "bg-gradient-to-br from-[color:var(--error)] to-[color:var(--error)]"
                       }`}
                     >
                       {t.type === "income" ? (
@@ -287,29 +287,21 @@ export const Transactions: React.FC<TransactionsProps> = ({
                       )}
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-bold text-[#0B1A33] text-lg">
-                        {t.description}
-                      </h3>
+                        <h3 className="font-bold text-[color:var(--text)] text-lg">
+                          {t.description}
+                        </h3>
                       <p className="text-gray-600 text-sm">
                         {t.category} • {t.date}
                       </p>
                     </div>
                   </div>
                   <div className="text-right flex items-center gap-4">
-                    <p
-                      className={`text-2xl font-bold ${
-                        t.type === "income"
-                          ? "text-[#16C47F]"
-                          : "text-[#EF5350]"
-                      }`}
-                    >
-                      {t.type === "income" ? "+" : "-"}${t.amount}
+                    <p className={`text-2xl font-bold ${t.type === "income" ? "text-[color:var(--success)]" : "text-[color:var(--error)]"}`}>
+                      ${t.amount}
                     </p>
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
                         t.status
-                      )}`}
-                    >
+                      )}`}>
                       {t.status}
                     </span>
                   </div>
@@ -320,7 +312,7 @@ export const Transactions: React.FC<TransactionsProps> = ({
 
           {filteredTransactions.length === 0 && (
             <Card className="text-center py-12">
-              <p className="text-gray-600 text-lg">No transactions found</p>
+              <p className="text-[color:var(--muted)] text-lg">No transactions found</p>
             </Card>
           )}
         </div>
@@ -348,11 +340,11 @@ export const Transactions: React.FC<TransactionsProps> = ({
             required
           />
           <div>
-            <label className="block text-sm font-medium text-[#0B1A33] mb-2">
+            <label className="block text-sm font-medium text-[color:var(--text)] mb-2">
               Type
             </label>
             <select
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200"
+              className="w-full px-4 py-3 rounded-xl border-2 border-[rgba(255,255,255,0.06)]"
               value={type}
               onChange={(e) => setType(e.target.value as "income" | "expense")}
             >

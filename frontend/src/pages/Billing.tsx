@@ -120,20 +120,20 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-[#16C47F]/10 text-[#16C47F]';
+        return 'bg-success-10 text-success';
       case 'unpaid':
-        return 'bg-[#FFA726]/10 text-[#FFA726]';
+        return 'bg-warning-10 text-warning';
       case 'pending':
-        return 'bg-[#3E8BFF]/10 text-[#3E8BFF]';
+        return 'bg-secondary-10 text-secondary';
       case 'overdue':
-        return 'bg-[#EF5350]/10 text-[#EF5350]';
+        return 'bg-[rgba(239,83,80,0.08)] text-[color:var(--error)]';
       default:
         return 'bg-gray-100 text-gray-600';
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F8FF]">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -155,7 +155,7 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
               ]}
               onNavigate={onNavigate}
             />
-            <h1 className="text-3xl font-bold text-[#0B1A33] mt-2">Invoices</h1>
+            <h1 className="text-3xl font-bold text-[color:var(--text)] mt-2">Invoices</h1>
           </div>
 
           {/* Create Invoice Form */}
@@ -167,25 +167,25 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
                 placeholder="Client Name"
                 value={newInvoice.clientName}
                 onChange={(e) => setNewInvoice({ ...newInvoice, clientName: e.target.value })}
-                className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[color:var(--secondary)]"
               />
               <input
                 type="date"
                 value={newInvoice.dueDate}
                 onChange={(e) => setNewInvoice({ ...newInvoice, dueDate: e.target.value })}
-                className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[color:var(--secondary)]"
               />
               <input
                 type="number"
                 placeholder="Amount"
                 value={newInvoice.amount}
                 onChange={(e) => setNewInvoice({ ...newInvoice, amount: e.target.value })}
-                className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[color:var(--secondary)]"
               />
               <select
                 value={newInvoice.status}
                 onChange={(e) => setNewInvoice({ ...newInvoice, status: e.target.value as any })}
-                className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[color:var(--secondary)]"
               >
                 <option value="pending">Pending</option>
                 <option value="paid">Paid</option>
@@ -202,13 +202,13 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
           <Card className="mb-6 animate-slide-up">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--muted)]" size={20} />
                 <input
                   type="text"
                   placeholder="Search invoices..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[color:var(--secondary)] focus:outline-none"
                 />
               </div>
               <div className="flex gap-2 flex-wrap">
@@ -217,10 +217,10 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
                     key={status}
                     onClick={() => setFilterStatus(status as any)}
                     className={`px-4 py-3 rounded-xl font-medium transition-all ${
-                      filterStatus === status
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-blue-600'
-                    }`}
+                          filterStatus === status
+                            ? 'bg-[color:var(--secondary)] text-white'
+                            : 'bg-card border-2 border-transparent text-[color:var(--muted)] hover:border-[color:var(--secondary)]'
+                        }`}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </button>
@@ -241,19 +241,19 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-[color:var(--secondary)] to-[color:var(--primary)] rounded-xl flex items-center justify-center">
                       <FileText size={24} className="text-white" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-bold text-[#0B1A33] text-lg">{invoice.invoiceNumber}</h3>
-                      <p className="text-gray-600 text-sm">
+                      <h3 className="font-bold text-[color:var(--text)] text-lg">{invoice.invoiceNumber}</h3>
+                      <p className="text-[color:var(--muted)] text-sm">
                         {invoice.clientName} • Due: {invoice.dueDate}
                       </p>
                     </div>
                   </div>
                   <div className="text-right flex items-center gap-4">
                     <div>
-                      <p className="text-2xl font-bold text-[#0B1A33]">${invoice.amount.toLocaleString()}</p>
+                      <p className="text-2xl font-bold text-[color:var(--text)]">${invoice.amount.toLocaleString()}</p>
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
                           invoice.status
@@ -281,7 +281,7 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
 
           {filteredInvoices.length === 0 && (
             <Card className="text-center py-12">
-              <p className="text-gray-600 text-lg">No invoices found</p>
+              <p className="text-[color:var(--muted)] text-lg">No invoices found</p>
             </Card>
           )}
         </div>

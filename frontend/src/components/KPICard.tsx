@@ -20,10 +20,10 @@ export const KPICard: React.FC<KPICardProps> = ({ title, value, trend, icon, col
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm text-gray-600 mb-2">{title}</p>
-          <h3 className="text-3xl font-bold text-[#0B1A33] mb-2">{value}</h3>
+          <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>{title}</p>
+          <h3 className="text-3xl font-bold mb-2" style={{ color: 'var(--text)' }}>{value}</h3>
           {trend !== undefined && (
-            <div className={`flex items-center gap-1 text-sm ${trend >= 0 ? 'text-[#16C47F]' : 'text-[#EF5350]'}`}>
+            <div className={`flex items-center gap-1 text-sm ${trend >= 0 ? 'text-[color:var(--success)]' : 'text-[color:var(--error)]'}`}>
               {trend >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
               <span className="font-medium">{Math.abs(trend)}%</span>
             </div>

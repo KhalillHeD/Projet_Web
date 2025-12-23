@@ -31,12 +31,12 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose}></div>
-      <div className={`relative bg-white rounded-2xl shadow-2xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-y-auto animate-scale-in`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-200" onClick={onClose}></div>
+      <div className={`relative bg-card rounded-2xl shadow-2xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-y-auto transform transition-all duration-200`} style={{ border: '1px solid rgba(255,255,255,0.04)' }}>
         {title && (
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-2xl font-bold text-[#0B1A33]">{title}</h2>
+          <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+            <h2 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>{title}</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"

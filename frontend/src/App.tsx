@@ -76,13 +76,13 @@ function App() {
     }
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F8FF]">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--background)' }}>
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-[#0B1A33] mb-4">404 - Page Not Found</h1>
-          <p className="text-gray-600 mb-6">The page you're looking for doesn't exist.</p>
+          <h1 className="text-4xl font-bold text-[color:var(--text)] mb-4">404 - Page Not Found</h1>
+          <p className="text-[color:var(--muted)] mb-6">The page you're looking for doesn't exist.</p>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-3 bg-[#1A6AFF] text-white rounded-xl hover:bg-[#1557d9] transition-colors"
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-[color:var(--secondary)] to-[color:var(--primary)] text-white transition-colors"
           >
             Go Home
           </button>

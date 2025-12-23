@@ -18,12 +18,12 @@ export const Button: React.FC<ButtonProps> = ({
   const baseClasses = 'font-medium rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0';
 
   const variantClasses = {
-    primary: 'bg-[#1A6AFF] text-white hover:bg-[#1557d9] shadow-md',
-    secondary: 'bg-[#3E8BFF] text-white hover:bg-[#2b7aed] shadow-md',
-    success: 'bg-[#16C47F] text-white hover:bg-[#13ad70] shadow-md',
-    warning: 'bg-[#FFA726] text-white hover:bg-[#f59518] shadow-md',
-    error: 'bg-[#EF5350] text-white hover:bg-[#e53935] shadow-md',
-    outline: 'bg-white text-[#1A6AFF] border-2 border-[#1A6AFF] hover:bg-[#1A6AFF] hover:text-white shadow-sm',
+    primary: 'bg-[color:var(--primary)] text-white hover:brightness-110 shadow-md',
+    secondary: 'bg-[color:var(--secondary)] text-white hover:brightness-110 shadow-md',
+    success: 'bg-[color:var(--success)] text-white hover:brightness-95 shadow-md',
+    warning: 'bg-[color:var(--warning)] text-white hover:brightness-95 shadow-md',
+    error: 'bg-[color:var(--error)] text-white hover:brightness-95 shadow-md',
+    outline: 'bg-transparent text-[color:var(--accent)] border-2 border-[color:var(--accent)] hover:bg-[color:var(--accent)] hover:text-white shadow-sm',
   };
 
   const sizeClasses = {

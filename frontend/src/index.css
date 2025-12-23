@@ -5,12 +5,16 @@
 @tailwind utilities;
 
 :root {
-  --primary: #1A6AFF;
-  --secondary: #3E8BFF;
-  --background: #F5F8FF;
-  --text: #0B1A33;
+  /* Dark blue + gold theme variables */
+  --primary: #062239; /* deep blue */
+  --secondary: #071a52;
+  --accent: #D4AF37; /* gold */
+  --background: linear-gradient(135deg, #011627 0%, #05204a 100%);
+  --text: #E6EEF3;
+  --muted: #94A3B8;
+  --card-bg: rgba(255,255,255,0.03);
   --success: #16C47F;
-  --warning: #FFA726;
+  --warning: #F59E0B;
   --error: #EF5350;
   --white: #FFFFFF;
 }
@@ -23,7 +27,7 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: var(--background);
+  background: var(--background);
   color: var(--text);
   overflow-x: hidden;
 }
@@ -48,6 +52,19 @@ html {
   .animate-scale-in {
     animation: scaleIn 0.4s ease-out;
   }
+
+  .bg-card { background-color: var(--card-bg); }
+  .text-accent { color: var(--accent); }
+  .bg-accent { background: var(--accent); }
+  .text-primary { color: var(--primary); }
+  .text-secondary { color: var(--secondary); }
+  .text-success { color: var(--success); }
+  .text-warning { color: var(--warning); }
+
+  .bg-accent-10 { background-color: rgba(212,175,55,0.08); }
+  .bg-success-10 { background-color: rgba(22,196,127,0.08); }
+  .bg-warning-10 { background-color: rgba(245,158,11,0.08); }
+  .bg-secondary-10 { background-color: rgba(7,26,82,0.06); }
 }
 
 @keyframes fadeIn {

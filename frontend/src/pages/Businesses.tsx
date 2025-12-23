@@ -187,14 +187,14 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1A6AFF]/10 via-[#3E8BFF]/5 to-transparent flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: 'var(--background)' }}>
       <div className="max-w-6xl w-full">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#0B1A33] mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: 'var(--text)' }}>
             Select Your Business
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl" style={{ color: 'var(--muted)' }}>
             Choose a business to manage or create a new one
           </p>
         </div>
@@ -204,9 +204,10 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
           <div className="relative h-[500px] flex items-center justify-center perspective-[2000px]">
             <button
               onClick={handlePrevious}
-              className="absolute left-0 z-20 p-4 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-all hover:scale-110"
+              className="absolute left-0 z-20 p-4 rounded-full shadow-lg transition-all hover:scale-110"
+              style={{ background: 'var(--card-bg)' }}
             >
-              <ChevronLeft size={32} className="text-[#1A6AFF]" />
+              <ChevronLeft size={32} className="text-[color:var(--secondary)]" />
             </button>
 
             <div className="relative w-full max-w-4xl h-full flex items-center justify-center">
@@ -220,7 +221,7 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
                 }}
                 onClick={handlePrevious}
               >
-                <div className="w-full h-full bg-white rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center text-center">
+                <div className="w-full h-full bg-card rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center text-center">
                   <img
                     src={
                       businesses[getPreviousIndex()]?.logo || "/default-logo.png"
@@ -228,10 +229,10 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
                     alt={businesses[getPreviousIndex()]?.name || "Business"}
                     className="w-20 h-20 object-cover mb-4 rounded-full"
                   />
-                  <h3 className="text-2xl font-bold text-[#0B1A33] mb-2">
+                  <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--text)' }}>
                     {businesses[getPreviousIndex()]?.name}
                   </h3>
-                  <p className="text-gray-600">
+                  <p style={{ color: 'var(--muted)' }}>
                     {businesses[getPreviousIndex()]?.tagline}
                   </p>
                 </div>
@@ -245,20 +246,20 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
                   onNavigate(`/business/${businesses[currentIndex]?.id}`)
                 }
               >
-                <div className="w-full h-full bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-10 flex flex-col items-center justify-center text-center border-4 border-[#1A6AFF]">
+                <div className="w-full h-full bg-card rounded-3xl shadow-2xl p-10 flex flex-col items-center justify-center text-center" style={{ border: '1px solid rgba(255,255,255,0.04)' }}>
                   <img
                     src={businesses[currentIndex].logo || "/default-logo.png"}
                     alt={businesses[currentIndex].name}
                     className="w-32 h-32 object-cover mb-6 rounded-full"
                   />
-                  <h3 className="text-3xl font-bold text-[#0B1A33] mb-3">
+                  <h3 className="text-3xl font-bold mb-3" style={{ color: 'var(--text)' }}>
                     {businesses[currentIndex]?.name}
                   </h3>
-                  <p className="text-gray-600 mb-4 text-lg">
+                  <p className="mb-4 text-lg" style={{ color: 'var(--muted)' }}>
                     {businesses[currentIndex]?.tagline}
                   </p>
                   {businesses[currentIndex]?.industry && (
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#1A6AFF] text-white rounded-lg text-sm font-medium">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium" style={{ background: 'linear-gradient(90deg, var(--secondary), var(--primary))' }}>
                       {businesses[currentIndex].industry}
                     </div>
                   )}
@@ -275,16 +276,16 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
                 }}
                 onClick={handleNext}
               >
-                <div className="w-full h-full bg-white rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center text-center">
+                <div className="w-full h-full bg-card rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center text-center">
                   <img
                     src={businesses[getNextIndex()]?.logo || "/default-logo.png"}
                     alt={businesses[getNextIndex()]?.name || "Business"}
                     className="w-20 h-20 object-cover mb-4 rounded-full"
                   />
-                  <h3 className="text-2xl font-bold text-[#0B1A33] mb-2">
+                  <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--text)' }}>
                     {businesses[getNextIndex()]?.name}
                   </h3>
-                  <p className="text-gray-600">
+                  <p style={{ color: 'var(--muted)' }}>
                     {businesses[getNextIndex()]?.tagline}
                   </p>
                 </div>
@@ -293,25 +294,26 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
 
             <button
               onClick={handleNext}
-              className="absolute right-0 z-20 p-4 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-all hover:scale-110"
+              className="absolute right-0 z-20 p-4 rounded-full shadow-lg transition-all hover:scale-110"
+              style={{ background: 'var(--card-bg)' }}
             >
-              <ChevronRight size={32} className="text-[#1A6AFF]" />
+              <ChevronRight size={32} className="text-[color:var(--secondary)]" />
             </button>
           </div>
         ) : (
-          <p className="text-center text-gray-500 mt-16">
+          <p className="text-center mt-16" style={{ color: 'var(--muted)' }}>
             No businesses yet. Create one below!
           </p>
         )}
 
         {/* Dots */}
         <div className="flex justify-center gap-2 mt-12">
-          {businesses.map((_, index) => (
+            {businesses.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentIndex ? "bg-[#1A6AFF] w-8" : "bg-gray-300"
+                index === currentIndex ? "bg-[color:var(--secondary)] w-8" : "bg-[rgba(255,255,255,0.04)]"
               }`}
             />
           ))}
@@ -324,6 +326,7 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
             size="lg"
             icon={<Plus size={20} />}
             onClick={() => setShowCreateModal(true)}
+            className="bg-gradient-to-r from-[color:var(--secondary)] to-[color:var(--primary)] text-white"
           >
             Create New Business
           </Button>
@@ -332,23 +335,23 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
         {/* Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative shadow-xl">
-              <h2 className="text-2xl font-bold mb-4 text-[#0B1A33] text-center">
+            <div className="bg-card rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative shadow-xl">
+              <h2 className="text-2xl font-bold mb-4 text-center" style={{ color: 'var(--text)' }}>
                 Create New Business
               </h2>
               <div className="space-y-4">
-                <input
+                  <input
                   type="text"
                   value={newBusinessName}
                   onChange={(e) => setNewBusinessName(e.target.value)}
                   placeholder="Business Name"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-transparent focus:border-[color:var(--secondary)] focus:outline-none bg-card text-[color:var(--text)]"
                 />
                 <textarea
                   value={newBusinessDescription}
                   onChange={(e) => setNewBusinessDescription(e.target.value)}
                   placeholder="Description"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-[rgba(255,255,255,0.06)] focus:border-[color:var(--secondary)] focus:outline-none"
                   rows={3}
                 />
                 <input
@@ -356,7 +359,9 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
                   value={newBusinessTagline}
                   onChange={(e) => setNewBusinessTagline(e.target.value)}
                   placeholder="Tagline (optional)"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--secondary)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '')}
                 />
                 <input
                   type="file"
@@ -364,7 +369,7 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
                   onChange={(e) =>
                     e.target.files && setNewBusinessLogo(e.target.files[0])
                   }
-                  className="w-full border-2 border-gray-200 rounded-xl p-2"
+                  className="w-full border-2 border-transparent rounded-xl p-2 bg-card text-[color:var(--text)]"
                 />
 
                 {/* Contact info optional */}
@@ -373,61 +378,73 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
                   placeholder="Email (optional)"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-transparent focus:border-[color:var(--secondary)] focus:outline-none bg-card text-[color:var(--text)]"
                 />
                 <input
                   type="text"
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
                   placeholder="Phone (optional)"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--secondary)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '')}
                 />
                 <input
                   type="text"
                   value={contactAddress}
                   onChange={(e) => setContactAddress(e.target.value)}
                   placeholder="Address (optional)"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--secondary)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '')}
                 />
                 <input
                   type="text"
                   value={contactCity}
                   onChange={(e) => setContactCity(e.target.value)}
                   placeholder="City (optional)"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--secondary)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '')}
                 />
                 <input
                   type="text"
                   value={contactState}
                   onChange={(e) => setContactState(e.target.value)}
                   placeholder="State (optional)"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--secondary)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '')}
                 />
                 <input
                   type="text"
                   value={contactPostalCode}
                   onChange={(e) => setContactPostalCode(e.target.value)}
                   placeholder="Postal Code (optional)"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--secondary)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '')}
                 />
                 <input
                   type="text"
                   value={contactCountry}
                   onChange={(e) => setContactCountry(e.target.value)}
                   placeholder="Country (optional)"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-[rgba(255,255,255,0.06)] focus:border-[color:var(--secondary)] focus:outline-none"
                 />
 
                 <div className="flex gap-3 mt-4">
                   <button
                     onClick={handleSubmitNewBusiness}
-                    className="flex-1 bg-[#1A6AFF] text-white px-4 py-3 rounded-xl hover:bg-[#3E8BFF] transition"
+                    className="flex-1 px-4 py-3 rounded-xl text-white"
+                    style={{ background: 'linear-gradient(90deg, var(--secondary), var(--primary))' }}
                   >
                     Create Business
                   </button>
                   <button
                     onClick={() => setShowCreateModal(false)}
-                    className="flex-1 border-2 border-gray-300 px-4 py-3 rounded-xl hover:bg-gray-100 transition"
+                    className="flex-1 rounded-xl"
+                    style={{ border: '1px solid rgba(255,255,255,0.04)', background: 'transparent', color: 'var(--muted)' }}
                   >
                     Cancel
                   </button>

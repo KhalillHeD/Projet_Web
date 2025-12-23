@@ -42,8 +42,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     <nav
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         transparent
-          ? "bg-transparent"
-          : "bg-white/95 backdrop-blur-sm shadow-md"
+          ? 'bg-transparent'
+          : 'bg-[color:var(--primary)] text-[color:var(--text)] shadow-md border-b border-[rgba(255,255,255,0.04)]'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,10 +52,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => onNavigate("/")}
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-[#1A6AFF] to-[#3E8BFF] rounded-xl flex items-center justify-center">
-              <Building2 size={24} className="text-white" />
+            <div className="w-10 h-10 bg-gradient-to-br from-[color:var(--secondary)] to-[color:var(--accent)] rounded-xl flex items-center justify-center shadow-md">
+              <Building2 size={20} className="text-white" />
             </div>
-            <span className="text-2xl font-bold text-[#0B1A33]">
+            <span className="text-2xl font-bold text-white tracking-tight">
               BizManager
             </span>
           </div>
@@ -64,19 +64,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="hidden md:flex items-center gap-8">
             <button
               onClick={() => scrollToSection("services")}
-              className="text-[#0B1A33] hover:text-[#1A6AFF] transition-colors duration-200 font-medium"
+              className="text-[color:var(--muted)] hover:text-[color:var(--accent)] transition-colors duration-200 font-medium"
             >
               Services
             </button>
             <button
               onClick={() => scrollToSection("about")}
-              className="text-[#0B1A33] hover:text-[#1A6AFF] transition-colors duration-200 font-medium"
+              className="text-[color:var(--muted)] hover:text-[color:var(--accent)] transition-colors duration-200 font-medium"
             >
               About
             </button>
             <button
               onClick={() => scrollToSection("contact")}
-              className="text-[#0B1A33] hover:text-[#1A6AFF] transition-colors duration-200 font-medium"
+              className="text-[color:var(--muted)] hover:text-[color:var(--accent)] transition-colors duration-200 font-medium"
             >
               Contact
             </button>
@@ -85,27 +85,27 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen((v) => !v)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-sm text-gray-800 transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/6 hover:bg-white/10 text-sm text-[color:var(--text)] transition-colors"
                 >
                   <UserIcon size={18} />
                   <span>{user.username}</span>
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-sm z-50">
+                  <div className="absolute right-0 mt-2 w-44 bg-card rounded-lg shadow-xl border border-[color:var(--primary)]/10 py-1 text-sm z-50">
                     <button
                       onClick={() => {
                         setIsProfileOpen(false);
                         onNavigate("/profile");
                       }}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center gap-2"
+                      className="w-full text-left px-3 py-2 hover:bg-white/3 flex items-center gap-2 text-[color:var(--text)]"
                     >
                       <UserIcon size={16} />
                       <span>View profile</span>
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center gap-2 text-red-600"
+                      className="w-full text-left px-3 py-2 hover:bg-white/3 flex items-center gap-2 text-[color:var(--accent)]"
                     >
                       <LogOut size={16} />
                       <span>Logout</span>
@@ -119,7 +119,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => onNavigate("/login")}
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-1"
+                  className="flex items-center gap-1 text-[color:var(--text)] border-[rgba(255,255,255,0.06)]"
                 >
                   <LogIn size={16} />
                   Login
@@ -128,6 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => onNavigate("/businesses")}
                   variant="primary"
                   size="sm"
+                  className="bg-gradient-to-r from-[color:var(--secondary)] to-[color:var(--primary)] text-white"
                 >
                   Get Started
                 </Button>
@@ -138,7 +139,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Mobile menu toggle */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-white/6 transition-colors text-[color:var(--text)]"
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -147,23 +148,23 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile dropdown */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200 animate-slide-up">
+        <div className="md:hidden bg-card border-t border-[color:var(--primary)]/10 animate-slide-up">
           <div className="px-4 py-4 space-y-3">
             <button
               onClick={() => scrollToSection("services")}
-              className="block w-full text-left px-4 py-2 text-[#0B1A33] hover:bg-gray-50 rounded-lg transition-colors"
+              className="block w-full text-left px-4 py-2 text-gray-100 hover:bg-white/3 rounded-lg transition-colors"
             >
               Services
             </button>
             <button
               onClick={() => scrollToSection("about")}
-              className="block w-full text-left px-4 py-2 text-[#0B1A33] hover:bg-gray-50 rounded-lg transition-colors"
+              className="block w-full text-left px-4 py-2 text-gray-100 hover:bg-white/3 rounded-lg transition-colors"
             >
               About
             </button>
             <button
               onClick={() => scrollToSection("contact")}
-              className="block w-full text-left px-4 py-2 text-[#0B1A33] hover:bg-gray-50 rounded-lg transition-colors"
+              className="block w-full text-left px-4 py-2 text-gray-100 hover:bg-white/3 rounded-lg transition-colors"
             >
               Contact
             </button>
@@ -177,7 +178,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   }}
                   variant="outline"
                   size="sm"
-                  className="w-full flex items-center justify-center gap-1"
+                  className="w-full flex items-center justify-center gap-1 text-[color:var(--text)] border-[rgba(255,255,255,0.06)]"
                 >
                   <UserIcon size={16} />
                   View profile
@@ -186,7 +187,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={handleLogout}
                   variant="outline"
                   size="sm"
-                  className="w-full flex items-center justify-center gap-1 text-red-600 border-red-200"
+                  className="w-full flex items-center justify-center gap-1 text-[color:var(--accent)] border-[color:var(--accent)]/10"
                 >
                   <LogOut size={16} />
                   Logout
@@ -201,7 +202,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   }}
                   variant="outline"
                   size="sm"
-                  className="w-full flex items-center justify-center gap-1"
+                  className="w-full flex items-center justify-center gap-1 text-[color:var(--text)] border-[rgba(255,255,255,0.06)]"
                 >
                   <LogIn size={16} />
                   Login
@@ -213,7 +214,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   }}
                   variant="primary"
                   size="sm"
-                  className="w-full"
+                  className="w-full bg-gradient-to-r from-[color:var(--secondary)] to-[color:var(--primary)] text-white"
                 >
                   Get Started
                 </Button>

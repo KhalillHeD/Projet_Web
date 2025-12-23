@@ -215,7 +215,7 @@ export const Settings: React.FC<SettingsProps> = ({ businessId, onNavigate }) =>
   if (loading || !business) return <p className="p-8">Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-[#F5F8FF]">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -240,13 +240,13 @@ export const Settings: React.FC<SettingsProps> = ({ businessId, onNavigate }) =>
             onNavigate={onNavigate}
           />
 
-          <h1 className="text-3xl font-bold text-[#0B1A33] mt-4">
+          <h1 className="text-3xl font-bold mt-4" style={{ color: 'var(--text)' }}>
             Business Settings
           </h1>
 
           {/* Business Info */}
           <Card className="mb-6">
-            <h2 className="text-xl font-bold text-[#0B1A33] mb-6">
+            <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--text)' }}>
               Business Information
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -298,12 +298,14 @@ export const Settings: React.FC<SettingsProps> = ({ businessId, onNavigate }) =>
               />
 
               <div>
-                <label className="block text-sm font-medium text-[#0B1A33] mb-2">
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text)' }}>
                   Description
                 </label>
                 <textarea
                   rows={4}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--secondary)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '')}
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
@@ -319,9 +321,9 @@ export const Settings: React.FC<SettingsProps> = ({ businessId, onNavigate }) =>
 
           {/* Contact Info */}
           <Card className="mb-6">
-            <h2 className="text-xl font-bold text-[#0B1A33] mb-6">
-              Contact Information
-            </h2>
+            <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--text)' }}>
+                Contact Information
+              </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
                 label="Email"
@@ -389,11 +391,11 @@ export const Settings: React.FC<SettingsProps> = ({ businessId, onNavigate }) =>
           </Card>
 
           {/* Danger Zone */}
-          <Card className="border-2 border-[#EF5350]/20 bg-[#EF5350]/5">
-            <h2 className="text-xl font-bold text-[#EF5350] mb-4">
+          <Card className="mb-6" style={{ background: 'rgba(239,83,80,0.05)', border: '2px solid rgba(239,83,80,0.2)' }}>
+            <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--error)' }}>
               Danger Zone
             </h2>
-            <p className="text-gray-600 mb-4">
+            <p className="mb-4" style={{ color: 'var(--muted)' }}>
               Once you delete a business, there is no going back. Please be
               certain.
             </p>

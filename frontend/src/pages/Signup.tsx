@@ -93,23 +93,23 @@ export const Signup: React.FC<SignupProps> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-[#1A6AFF]/10 via-[#3E8BFF]/5 to-transparent">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: 'var(--background)' }}>
       <div className="w-full max-w-md animate-scale-in">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-[#1A6AFF] to-[#3E8BFF] rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(90deg, var(--secondary), var(--primary))' }}>
               <Building2 size={28} className="text-white" />
             </div>
-            <span className="text-3xl font-bold text-[#0B1A33]">BizManager</span>
+            <span className="text-3xl font-bold" style={{ color: 'var(--text)' }}>BizManager</span>
           </div>
-          <h1 className="text-3xl font-bold text-[#0B1A33] mb-2">Create Account</h1>
-          <p className="text-gray-600">Start managing your business today</p>
+          <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text)' }}>Create Account</h1>
+          <p style={{ color: 'var(--muted)' }}>Start managing your business today</p>
         </div>
 
         <Card>
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <p className="text-red-500 text-center text-sm">{error}</p>
+              <p className="text-center text-sm" style={{ color: 'var(--error)' }}>{error}</p>
             )}
 
             <Input
@@ -152,20 +152,21 @@ export const Signup: React.FC<SignupProps> = ({ onNavigate }) => {
               required
             />
 
-            <div className="text-sm text-gray-600">
+            <div className="text-sm" style={{ color: 'var(--muted)' }}>
               <label className="flex items-start gap-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 mt-0.5 rounded border-gray-300 text-[#1A6AFF]"
+                  className="w-4 h-4 mt-0.5 rounded border-gray-300"
+                  style={{ accentColor: 'var(--secondary)' }}
                   required
                 />
                 <span>
                   I agree to the{" "}
-                  <button type="button" className="text-[#1A6AFF] hover:underline">
+                  <button type="button" className="hover:underline" style={{ color: 'var(--secondary)' }}>
                     Terms of Service
                   </button>{" "}
                   and{" "}
-                  <button type="button" className="text-[#1A6AFF] hover:underline">
+                  <button type="button" className="hover:underline" style={{ color: 'var(--secondary)' }}>
                     Privacy Policy
                   </button>
                 </span>
@@ -183,13 +184,13 @@ export const Signup: React.FC<SignupProps> = ({ onNavigate }) => {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-6 text-center text-sm" style={{ color: 'var(--muted)' }}>
             Already have an account?{" "}
             <button
               onClick={() => onNavigate("/login")}
-              className="text-[#1A6AFF] font-medium hover:underline"
+              className="font-medium hover:underline"
             >
-              Sign in
+              <span style={{ color: 'var(--secondary)' }}>Sign in</span>
             </button>
           </div>
         </Card>
@@ -197,9 +198,10 @@ export const Signup: React.FC<SignupProps> = ({ onNavigate }) => {
         <div className="mt-6 text-center">
           <button
             onClick={() => onNavigate("/")}
-            className="text-gray-600 hover:text-[#1A6AFF] transition-colors"
+            className="text-gray-600 transition-colors"
+            style={{ color: 'var(--muted)' }}
           >
-            Back to home
+            <span style={{ color: 'var(--secondary)' }}>Back to home</span>
           </button>
         </div>
       </div>

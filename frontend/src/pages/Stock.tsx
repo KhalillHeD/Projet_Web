@@ -186,22 +186,22 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
     if (percentage <= 50)
       return {
         label: "Critical",
-        color: "from-[#EF5350] to-[#e53935]",
-        bg: "bg-[#EF5350]/10",
-        text: "text-[#EF5350]",
+        color: "from-[color:var(--error)] to-[color:var(--error)]",
+        bg: "bg-[color:var(--error)]/10",
+        text: "text-[color:var(--error)]",
       };
     if (percentage <= 100)
       return {
         label: "Low",
-        color: "from-[#FFA726] to-[#f59518]",
-        bg: "bg-[#FFA726]/10",
-        text: "text-[#FFA726]",
+        color: "from-[color:var(--warning)] to-[color:var(--warning)]",
+        bg: "bg-warning-10",
+        text: "text-warning",
       };
     return {
       label: "Good",
-      color: "from-[#16C47F] to-[#13ad70]",
-      bg: "bg-[#16C47F]/10",
-      text: "text-[#16C47F]",
+      color: "from-[color:var(--success)] to-[color:var(--success)]",
+      bg: "bg-success-10",
+      text: "text-success",
     };
   };
 
@@ -223,7 +223,7 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
     );
 
   return (
-    <div className="min-h-screen bg-[#F5F8FF]">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -249,10 +249,10 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
           />
           <div className="flex items-center justify-between mt-4 mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-[#0B1A33]">
+              <h1 className="text-3xl font-bold" style={{ color: 'var(--text)' }}>
                 Stock Management
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="mt-2" style={{ color: 'var(--muted)' }}>
                 {products.length} produit(s) chargé(s) depuis l&apos;API Django
               </p>
             </div>
@@ -268,20 +268,20 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <Card>
-              <p className="text-sm text-gray-600 mb-2">Total Items</p>
-              <p className="text-3xl font-bold text-[#0B1A33]">
+              <p className="text-sm text-[color:var(--muted)] mb-2">Total Items</p>
+              <p className="text-3xl font-bold" style={{ color: 'var(--text)' }}>
                 {adaptedStockItems.length}
               </p>
             </Card>
             <Card>
-              <p className="text-sm text-gray-600 mb-2">Low Stock Alerts</p>
-              <p className="text-3xl font-bold text-[#EF5350]">
+              <p className="text-sm text-[color:var(--muted)] mb-2">Low Stock Alerts</p>
+              <p className="text-3xl font-bold text-[color:var(--error)]">
                 {lowStockItems.length}
               </p>
             </Card>
             <Card>
-              <p className="text-sm text-gray-600 mb-2">Total Value</p>
-              <p className="text-3xl font-bold text-[#16C47F]">
+              <p className="text-sm text-[color:var(--muted)] mb-2">Total Value</p>
+              <p className="text-3xl font-bold text-[color:var(--success)]">
                 $
                 {adaptedStockItems
                   .reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -292,18 +292,19 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
 
           {/* Low stock alerts */}
           {lowStockItems.length > 0 && (
-            <Card className="mb-6 bg-[#EF5350]/5 border-2 border-[#EF5350]/20">
+            <Card className="mb-6" style={{ background: 'rgba(239,83,80,0.05)', border: '2px solid rgba(239,83,80,0.2)' }}>
               <div className="flex items-start gap-3">
                 <AlertTriangle
                   size={24}
-                  className="text-[#EF5350] flex-shrink-0 mt-1"
+                  className="flex-shrink-0 mt-1"
+                  style={{ color: 'var(--error)' }}
                 />
                 <div>
-                  <h3 className="font-bold text-[#0B1A33] mb-2">
+                  <h3 className="font-bold mb-2" style={{ color: 'var(--text)' }}>
                     Low Stock Alerts
                   </h3>
                   <p className="text-gray-600 mb-3">
-                    The following items are running low on stock:
+                      The following items are running low on stock:
                   </p>
                   <div className="space-y-2">
                     {lowStockItems.map((item) => (
@@ -311,10 +312,10 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
                         key={item.id}
                         className="flex items-center justify-between bg-white rounded-lg px-4 py-2"
                       >
-                        <span className="font-medium text-[#0B1A33]">
+                          <span className="font-medium text-[color:var(--text)]">
                           {item.name}
                         </span>
-                        <span className="text-[#EF5350]">
+                          <span className="text-[color:var(--error)]">
                           {item.quantity} left (min: {item.minQuantity})
                         </span>
                       </div>
@@ -337,7 +338,9 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
                 placeholder="Search stock items..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--secondary)')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = '')}
               />
             </div>
           </Card>
@@ -361,27 +364,27 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
                         <Package size={28} className="text-white" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-bold text-[#0B1A33] text-lg">
+                        <h3 className="font-bold text-[color:var(--text)] text-lg">
                           {item.name}
                         </h3>
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-[color:var(--muted)] text-sm">
                           SKU: {item.sku} • {item.category}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-[color:var(--muted)] mt-1">
                           Last updated: {item.lastUpdated}
                         </p>
                       </div>
                     </div>
                     <div className="text-right space-y-2">
                       <div>
-                        <p className="text-sm text-gray-600">Quantity</p>
-                        <p className="text-2xl font-bold text-[#0B1A33]">
+                        <p className="text-sm text-[color:var(--muted)]">Quantity</p>
+                        <p className="text-2xl font-bold text-[color:var(--text)]">
                           {item.quantity}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Price</p>
-                        <p className="text-lg font-bold text-[#1A6AFF]">
+                        <p className="text-sm text-[color:var(--muted)]">Price</p>
+                        <p className="text-lg font-bold text-[color:var(--accent)]">
                           ${item.price}
                         </p>
                       </div>
@@ -392,14 +395,14 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
                       </span>
                     </div>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.06)]">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Stock Level</span>
-                      <span className="font-medium text-[#0B1A33]">
+                      <span className="text-[color:var(--muted)]">Stock Level</span>
+                      <span className="font-medium text-[color:var(--text)]">
                         {item.quantity} / {item.minQuantity} min
                       </span>
                     </div>
-                    <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="mt-2 h-2 bg-[rgba(255,255,255,0.04)] rounded-full overflow-hidden">
                       <div
                         className={`h-full bg-gradient-to-r ${status.color} transition-all duration-500`}
                         style={{

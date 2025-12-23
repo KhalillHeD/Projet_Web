@@ -13,7 +13,7 @@ export const Card: React.FC<CardProps> = ({ children, className = '', hover = fa
 
   return (
     <div
-      className={`bg-white rounded-2xl shadow-md p-6 transition-all duration-300 ${hoverClasses} ${className}`}
+      className={`bg-card rounded-2xl shadow-md p-6 transition-all duration-300 ${hoverClasses} ${className}`}
       onClick={onClick}
       style={style}
     >

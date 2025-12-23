@@ -21,15 +21,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, currentPath,
   return (
     <>
       <div
-        className={`fixed left-0 top-0 h-full bg-white shadow-lg z-30 transition-all duration-300 ${
+        className={`fixed left-0 top-0 h-full bg-card shadow-lg z-30 transition-all duration-300 ${
           isOpen ? 'w-64' : 'w-20'
         }`}
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          {isOpen && <span className="font-bold text-[#0B1A33]">Menu</span>}
+        <div className="flex items-center justify-between p-6 border-b" style={{ borderColor: 'var(--primary)', borderWidth: '1px' }}>
+          {isOpen && <span className="font-bold text-[color:var(--text)]">Menu</span>}
           <button
             onClick={onToggle}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors ml-auto"
+            className="p-2 hover:bg-white/5 rounded-lg transition-colors ml-auto"
           >
             {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
           </button>
@@ -45,8 +45,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, currentPath,
                 onClick={() => onNavigate(item.path)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? 'bg-[#1A6AFF] text-white shadow-md'
-                    : 'text-[#0B1A33] hover:bg-gray-100'
+                    ? 'bg-[color:var(--secondary)] text-white shadow-md'
+                    : 'text-[color:var(--text)] hover:bg-white/5'
                 }`}
               >
                 <Icon size={20} />
