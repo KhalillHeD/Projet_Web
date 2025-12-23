@@ -22,9 +22,19 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.core.mail import EmailMessage
 
+from rest_framework import permissions
+
 class BusinessViewSet(viewsets.ModelViewSet):
-    queryset = Business.objects.all()
     serializer_class = BusinessSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Each user sees ONLY their businesses
+        return Business.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        # Automatically assign owner
+        serializer.save(user=self.request.user)
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()

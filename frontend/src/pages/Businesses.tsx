@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { Button } from '../components/Button';
+import React, { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Button } from "../components/Button";
+import { useAuth } from "../context/AuthContext";
 
 interface BusinessesProps {
   onNavigate: (path: string) => void;
@@ -16,6 +17,8 @@ interface BusinessType {
 }
 
 export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
+  const { accessToken, loading } = useAuth();
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [businesses, setBusinesses] = useState<BusinessType[]>([]);
@@ -35,13 +38,16 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
   const [contactPostalCode, setContactPostalCode] = useState("");
   const [contactCountry, setContactCountry] = useState("");
 
-  // Fetch businesses from backend
+  // Fetch businesses from backend (wait until auth is restored)
   useEffect(() => {
+    if (loading) return;
+
     const fetchBusinesses = async () => {
       try {
-        const token = localStorage.getItem("access_token");
+        const token = accessToken || localStorage.getItem("access_token");
         if (!token) {
-          console.error("No access token found in localStorage");
+          console.error("No access token → redirecting to login");
+          onNavigate("/login");
           return;
         }
 
@@ -54,6 +60,12 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
         if (!res.ok) {
           const errBody = await res.json().catch(() => null);
           console.error("Backend error fetching businesses:", errBody);
+
+          if (res.status === 401) {
+            onNavigate("/login");
+            return;
+          }
+
           throw new Error("Failed to fetch businesses");
         }
 
@@ -63,25 +75,34 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
         console.error("Failed to fetch businesses:", err);
       }
     };
+
     fetchBusinesses();
-  }, []);
+  }, [accessToken, loading, onNavigate]);
 
   // Carousel navigation
   const handlePrevious = () => {
     if (!businesses.length) return;
-    setCurrentIndex(prev => (prev > 0 ? prev - 1 : businesses.length - 1));
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : businesses.length - 1));
   };
 
   const handleNext = () => {
     if (!businesses.length) return;
-    setCurrentIndex(prev => (prev < businesses.length - 1 ? prev + 1 : 0));
+    setCurrentIndex((prev) => (prev < businesses.length - 1 ? prev + 1 : 0));
   };
 
   const getPreviousIndex = () =>
-    businesses.length ? (currentIndex > 0 ? currentIndex - 1 : businesses.length - 1) : 0;
+    businesses.length
+      ? currentIndex > 0
+        ? currentIndex - 1
+        : businesses.length - 1
+      : 0;
 
   const getNextIndex = () =>
-    businesses.length ? (currentIndex < businesses.length - 1 ? currentIndex + 1 : 0) : 0;
+    businesses.length
+      ? currentIndex < businesses.length - 1
+        ? currentIndex + 1
+        : 0
+      : 0;
 
   const handleSubmitNewBusiness = async () => {
     if (!newBusinessName) {
@@ -89,9 +110,10 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
       return;
     }
 
-    const token = localStorage.getItem("access_token");
+    const token = accessToken || localStorage.getItem("access_token");
     if (!token) {
       alert("You must be logged in to create a business.");
+      onNavigate("/login");
       return;
     }
 
@@ -132,6 +154,12 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         console.error("Backend error:", errorData);
+
+        if (response.status === 401) {
+          onNavigate("/login");
+          return;
+        }
+
         throw new Error("Failed to create business");
       }
 
@@ -150,7 +178,7 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
       setContactPostalCode("");
       setContactCountry("");
 
-      setBusinesses(prev => [...prev, newBusiness]);
+      setBusinesses((prev) => [...prev, newBusiness]);
       onNavigate(`/business/${newBusiness.id}`);
     } catch (err) {
       console.error("Network or code error:", err);
@@ -185,34 +213,50 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
               {/* Previous */}
               <div
                 className="absolute left-[10%] w-[300px] h-[400px] transition-all duration-500 ease-out cursor-pointer hover:scale-105"
-                style={{ transform: 'translateX(-20%) rotateY(-10deg) scale(0.85)', zIndex: 1, opacity: 0.6 }}
+                style={{
+                  transform: "translateX(-20%) rotateY(-10deg) scale(0.85)",
+                  zIndex: 1,
+                  opacity: 0.6,
+                }}
                 onClick={handlePrevious}
               >
                 <div className="w-full h-full bg-white rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center text-center">
                   <img
-                    src={businesses[getPreviousIndex()]?.logo || '/default-logo.png'}
-                    alt={businesses[getPreviousIndex()]?.name || 'Business'}
+                    src={
+                      businesses[getPreviousIndex()]?.logo || "/default-logo.png"
+                    }
+                    alt={businesses[getPreviousIndex()]?.name || "Business"}
                     className="w-20 h-20 object-cover mb-4 rounded-full"
                   />
-                  <h3 className="text-2xl font-bold text-[#0B1A33] mb-2">{businesses[getPreviousIndex()]?.name}</h3>
-                  <p className="text-gray-600">{businesses[getPreviousIndex()]?.tagline}</p>
+                  <h3 className="text-2xl font-bold text-[#0B1A33] mb-2">
+                    {businesses[getPreviousIndex()]?.name}
+                  </h3>
+                  <p className="text-gray-600">
+                    {businesses[getPreviousIndex()]?.tagline}
+                  </p>
                 </div>
               </div>
 
               {/* Current */}
               <div
                 className="absolute w-[350px] h-[450px] transition-all duration-500 ease-out cursor-pointer hover:scale-105"
-                style={{ transform: 'translateZ(50px) scale(1)', zIndex: 10 }}
-                onClick={() => onNavigate(`/business/${businesses[currentIndex]?.id}`)}
+                style={{ transform: "translateZ(50px) scale(1)", zIndex: 10 }}
+                onClick={() =>
+                  onNavigate(`/business/${businesses[currentIndex]?.id}`)
+                }
               >
                 <div className="w-full h-full bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-10 flex flex-col items-center justify-center text-center border-4 border-[#1A6AFF]">
                   <img
-                    src={businesses[currentIndex].logo || '/default-logo.png'}
+                    src={businesses[currentIndex].logo || "/default-logo.png"}
                     alt={businesses[currentIndex].name}
                     className="w-32 h-32 object-cover mb-6 rounded-full"
                   />
-                  <h3 className="text-3xl font-bold text-[#0B1A33] mb-3">{businesses[currentIndex]?.name}</h3>
-                  <p className="text-gray-600 mb-4 text-lg">{businesses[currentIndex]?.tagline}</p>
+                  <h3 className="text-3xl font-bold text-[#0B1A33] mb-3">
+                    {businesses[currentIndex]?.name}
+                  </h3>
+                  <p className="text-gray-600 mb-4 text-lg">
+                    {businesses[currentIndex]?.tagline}
+                  </p>
                   {businesses[currentIndex]?.industry && (
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#1A6AFF] text-white rounded-lg text-sm font-medium">
                       {businesses[currentIndex].industry}
@@ -224,17 +268,25 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
               {/* Next */}
               <div
                 className="absolute right-[10%] w-[300px] h-[400px] transition-all duration-500 ease-out cursor-pointer hover:scale-105"
-                style={{ transform: 'translateX(20%) rotateY(10deg) scale(0.85)', zIndex: 1, opacity: 0.6 }}
+                style={{
+                  transform: "translateX(20%) rotateY(10deg) scale(0.85)",
+                  zIndex: 1,
+                  opacity: 0.6,
+                }}
                 onClick={handleNext}
               >
                 <div className="w-full h-full bg-white rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center text-center">
                   <img
-                    src={businesses[getNextIndex()]?.logo || '/default-logo.png'}
-                    alt={businesses[getNextIndex()]?.name || 'Business'}
+                    src={businesses[getNextIndex()]?.logo || "/default-logo.png"}
+                    alt={businesses[getNextIndex()]?.name || "Business"}
                     className="w-20 h-20 object-cover mb-4 rounded-full"
                   />
-                  <h3 className="text-2xl font-bold text-[#0B1A33] mb-2">{businesses[getNextIndex()]?.name}</h3>
-                  <p className="text-gray-600">{businesses[getNextIndex()]?.tagline}</p>
+                  <h3 className="text-2xl font-bold text-[#0B1A33] mb-2">
+                    {businesses[getNextIndex()]?.name}
+                  </h3>
+                  <p className="text-gray-600">
+                    {businesses[getNextIndex()]?.tagline}
+                  </p>
                 </div>
               </div>
             </div>
@@ -247,7 +299,9 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
             </button>
           </div>
         ) : (
-          <p className="text-center text-gray-500 mt-16">No businesses yet. Create one below!</p>
+          <p className="text-center text-gray-500 mt-16">
+            No businesses yet. Create one below!
+          </p>
         )}
 
         {/* Dots */}
@@ -256,7 +310,9 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-[#1A6AFF] w-8' : 'bg-gray-300'}`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentIndex ? "bg-[#1A6AFF] w-8" : "bg-gray-300"
+              }`}
             />
           ))}
         </div>
@@ -277,18 +333,20 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
         {showCreateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative shadow-xl">
-              <h2 className="text-2xl font-bold mb-4 text-[#0B1A33] text-center">Create New Business</h2>
+              <h2 className="text-2xl font-bold mb-4 text-[#0B1A33] text-center">
+                Create New Business
+              </h2>
               <div className="space-y-4">
                 <input
                   type="text"
                   value={newBusinessName}
-                  onChange={e => setNewBusinessName(e.target.value)}
+                  onChange={(e) => setNewBusinessName(e.target.value)}
                   placeholder="Business Name"
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
                 />
                 <textarea
                   value={newBusinessDescription}
-                  onChange={e => setNewBusinessDescription(e.target.value)}
+                  onChange={(e) => setNewBusinessDescription(e.target.value)}
                   placeholder="Description"
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
                   rows={3}
@@ -296,25 +354,69 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
                 <input
                   type="text"
                   value={newBusinessTagline}
-                  onChange={e => setNewBusinessTagline(e.target.value)}
+                  onChange={(e) => setNewBusinessTagline(e.target.value)}
                   placeholder="Tagline (optional)"
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
                 />
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={e => e.target.files && setNewBusinessLogo(e.target.files[0])}
+                  onChange={(e) =>
+                    e.target.files && setNewBusinessLogo(e.target.files[0])
+                  }
                   className="w-full border-2 border-gray-200 rounded-xl p-2"
                 />
 
                 {/* Contact info optional */}
-                <input type="email" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder="Email (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
-                <input type="text" value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="Phone (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
-                <input type="text" value={contactAddress} onChange={e => setContactAddress(e.target.value)} placeholder="Address (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
-                <input type="text" value={contactCity} onChange={e => setContactCity(e.target.value)} placeholder="City (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
-                <input type="text" value={contactState} onChange={e => setContactState(e.target.value)} placeholder="State (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
-                <input type="text" value={contactPostalCode} onChange={e => setContactPostalCode(e.target.value)} placeholder="Postal Code (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
-                <input type="text" value={contactCountry} onChange={e => setContactCountry(e.target.value)} placeholder="Country (optional)" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none" />
+                <input
+                  type="email"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  placeholder="Email (optional)"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                />
+                <input
+                  type="text"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  placeholder="Phone (optional)"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                />
+                <input
+                  type="text"
+                  value={contactAddress}
+                  onChange={(e) => setContactAddress(e.target.value)}
+                  placeholder="Address (optional)"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                />
+                <input
+                  type="text"
+                  value={contactCity}
+                  onChange={(e) => setContactCity(e.target.value)}
+                  placeholder="City (optional)"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                />
+                <input
+                  type="text"
+                  value={contactState}
+                  onChange={(e) => setContactState(e.target.value)}
+                  placeholder="State (optional)"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                />
+                <input
+                  type="text"
+                  value={contactPostalCode}
+                  onChange={(e) => setContactPostalCode(e.target.value)}
+                  placeholder="Postal Code (optional)"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                />
+                <input
+                  type="text"
+                  value={contactCountry}
+                  onChange={(e) => setContactCountry(e.target.value)}
+                  placeholder="Country (optional)"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none"
+                />
 
                 <div className="flex gap-3 mt-4">
                   <button
@@ -334,7 +436,6 @@ export const Businesses: React.FC<BusinessesProps> = ({ onNavigate }) => {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

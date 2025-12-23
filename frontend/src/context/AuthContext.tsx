@@ -87,9 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem("access_token", access);
     localStorage.setItem("refresh_token", refresh);
 
-    // (Optionally keep old keys for backwards compatibility)
-    localStorage.setItem("access", access);
-    localStorage.setItem("refresh", refresh);
+
 
     setAccessToken(access);
     setRefreshToken(refresh);

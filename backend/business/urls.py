@@ -6,7 +6,7 @@ router = DefaultRouter()
 router.register(r'products', ProductViewSet)
 router.register(r'categories', CategoryViewSet)
 router.register(r'orders', OrderViewSet)
-router.register(r'businesses', BusinessViewSet)
+router.register(r'businesses', BusinessViewSet, basename='business')
 router.register(r"transactions", TransactionViewSet, basename="transactions")
 router.register(r'invoices', InvoiceViewSet)
 
