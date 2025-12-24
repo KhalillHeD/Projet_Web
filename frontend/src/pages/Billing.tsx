@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, FileText, Download } from 'lucide-react';
+import { Plus, Search, FileText, Download, Trash2 } from 'lucide-react';
 import { Sidebar } from '../layouts/Sidebar';
 import { Breadcrumb } from '../layouts/Breadcrumb';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
+import { useAuth } from "../context/AuthContext";
 
 interface BillingProps {
   businessId: string;
@@ -21,6 +22,7 @@ interface Invoice {
 }
 
 export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
+  const { accessToken } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'unpaid' | 'pending' | 'overdue'>('all');
@@ -37,11 +39,16 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
   // Fetch invoices
   useEffect(() => {
     const fetchInvoices = async () => {
+      if (!accessToken) return;
       setLoading(true);
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/invoices/?business=${businessId}`);
+        const res = await fetch(`http://127.0.0.1:8000/api/invoices/?business=${businessId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
         const data = await res.json();
-        setInvoices(data);
+        setInvoices(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Error fetching invoices:', err);
       } finally {
@@ -49,49 +56,84 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
       }
     };
     fetchInvoices();
-  }, [businessId]);
+  }, [businessId, accessToken]);
 
   const handleCreateInvoice = async () => {
-  if (!newInvoice.clientName || !newInvoice.dueDate || !newInvoice.amount) {
-    alert('Please fill in all fields');
-    return;
-  }
-
-  const payload = {
-    business: parseInt(businessId),
-    clientName: newInvoice.clientName,
-    dueDate: newInvoice.dueDate,
-    amount: parseFloat(newInvoice.amount),
-    status: newInvoice.status,
-  };
-
-  try {
-    const res = await fetch('http://127.0.0.1:8000/api/invoices/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const errText = await res.text(); // use text for errors
-      console.error('Backend error:', errText);
-      alert('Failed to create invoice. Check console for details.');
+    if (!newInvoice.clientName || !newInvoice.dueDate || !newInvoice.amount) {
+      alert('Please fill in all fields');
       return;
     }
 
-    const createdInvoice = await res.json(); // safe because response is OK
-    setInvoices((prev) => [createdInvoice, ...prev]);
-    setNewInvoice({ clientName: '', dueDate: '', amount: '', status: 'pending' });
-    alert('Invoice created successfully!');
-  } catch (err) {
-    console.error(err);
-    alert('Error creating invoice. Check console for details.');
-  }
-};
+    const payload = {
+      business: parseInt(businessId),
+      clientName: newInvoice.clientName,
+      dueDate: newInvoice.dueDate,
+      amount: parseFloat(newInvoice.amount),
+      status: newInvoice.status,
+    };
+
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/invoices/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text(); // use text for errors
+        console.error('Backend error:', errText);
+        alert('Failed to create invoice. Check console for details.');
+        return;
+      }
+
+      const createdInvoice = await res.json(); // safe because response is OK
+      setInvoices((prev) => [createdInvoice, ...prev]);
+      setNewInvoice({ clientName: '', dueDate: '', amount: '', status: 'pending' });
+      alert('Invoice created successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Error creating invoice. Check console for details.');
+    }
+  };
+
+  const handleDeleteInvoice = async (invoiceId: number) => {
+    if (!window.confirm("Are you sure you want to delete this invoice?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/invoices/${invoiceId}/`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error('Backend error deleting invoice:', errText);
+        alert('Failed to delete invoice.');
+        return;
+      }
+
+      setInvoices((prev) => prev.filter(inv => inv.id !== invoiceId));
+      alert('Invoice deleted successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Error deleting invoice.');
+    }
+  };
 
   const handleDownloadPdf = async (invoiceId: number, invoiceNumber: string) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/invoices/${invoiceId}/pdf/`);
+      const res = await fetch(`http://127.0.0.1:8000/api/invoices/${invoiceId}/pdf/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       if (!res.ok) throw new Error('Failed to fetch PDF');
 
       const blob = await res.blob();
@@ -131,6 +173,8 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
         return 'bg-gray-100 text-gray-600';
     }
   };
+
+  if (loading) return <div className="p-8">Loading invoices...</div>;
 
   return (
     <div className="min-h-screen bg-[#F5F8FF]">
@@ -216,11 +260,10 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
                   <button
                     key={status}
                     onClick={() => setFilterStatus(status as any)}
-                    className={`px-4 py-3 rounded-xl font-medium transition-all ${
-                      filterStatus === status
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-blue-600'
-                    }`}
+                    className={`px-4 py-3 rounded-xl font-medium transition-all ${filterStatus === status
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white border-2 border-gray-200 text-gray-600 hover:border-blue-600'
+                      }`}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </button>
@@ -251,27 +294,41 @@ export const Billing: React.FC<BillingProps> = ({ businessId, onNavigate }) => {
                       </p>
                     </div>
                   </div>
-                  <div className="text-right flex items-center gap-4">
-                    <div>
-                      <p className="text-2xl font-bold text-[#0B1A33]">${invoice.amount.toLocaleString()}</p>
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          invoice.status
-                        )}`}
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="text-right flex items-center gap-4">
+                      <div>
+                        <p className="text-2xl font-bold text-[#0B1A33]">${invoice.amount.toLocaleString()}</p>
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            invoice.status
+                          )}`}
+                        >
+                          {invoice.status}
+                        </span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        icon={<Download size={16} />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownloadPdf(invoice.id, invoice.invoiceNumber);
+                        }}
                       >
-                        {invoice.status}
-                      </span>
+                        PDF
+                      </Button>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
-                      icon={<Download size={16} />}
+                      className="text-[#EF5350] border-[#EF5350] hover:bg-[#EF5350]/10"
+                      icon={<Trash2 size={16} />}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDownloadPdf(invoice.id, invoice.invoiceNumber);
+                        handleDeleteInvoice(invoice.id);
                       }}
                     >
-                      PDF
+                      {""}
                     </Button>
                   </div>
                 </div>

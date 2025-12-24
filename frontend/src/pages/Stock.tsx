@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Package, AlertTriangle } from "lucide-react";
+import { Plus, Search, Package, AlertTriangle, Trash2 } from "lucide-react";
 import { Sidebar } from "../layouts/Sidebar";
 import { Breadcrumb } from "../layouts/Breadcrumb";
 import { Card } from "../components/Card";
@@ -157,6 +157,40 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
     }
   };
 
+  const handleDeleteProduct = async (productId: number) => {
+    if (!accessToken) {
+      alert("Not authenticated.");
+      return;
+    }
+
+    if (!window.confirm("Are you sure you want to delete this product?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/products/${productId}/`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        console.error(await res.text());
+        alert("Error deleting product");
+        return;
+      }
+
+      await fetchProducts();
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting product");
+    }
+  };
+
   const business = mockBusinesses.find((b) => b.id === businessId);
 
   const adaptedStockItems: StockItem[] = products.map((product) => ({
@@ -233,9 +267,8 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
       />
 
       <div
-        className={`transition-all duration-300 ${
-          sidebarOpen ? "ml-64" : "ml-20"
-        } p-8`}
+        className={`transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-20"
+          } p-8`}
       >
         <div className="max-w-7xl mx-auto mb-8">
           <Breadcrumb
@@ -372,7 +405,18 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
                         </p>
                       </div>
                     </div>
-                    <div className="text-right space-y-2">
+                    <div className="text-right space-y-2 flex flex-col items-end">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-[#EF5350] border-[#EF5350] hover:bg-[#EF5350]/10"
+                          icon={<Trash2 size={16} />}
+                          onClick={() => handleDeleteProduct(Number(item.id))}
+                        >
+                          {""}
+                        </Button>
+                      </div>
                       <div>
                         <p className="text-sm text-gray-600">Quantity</p>
                         <p className="text-2xl font-bold text-[#0B1A33]">

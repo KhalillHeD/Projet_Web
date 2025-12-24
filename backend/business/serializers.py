@@ -57,15 +57,38 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(), source='category', write_only=True
+        queryset=Category.objects.all(), source="category", write_only=True, required=False
     )
 
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'description', 'price', 'category', 'category_id',
-            'image', 'is_available', 'initial_quantity', 'created_at'
+            "id",
+            "name",
+            "description",
+            "price",
+            "category",
+            "category_id",
+            "image",
+            "is_available",
+            "initial_quantity",
+            "created_at",
         ]
+
+    def create(self, validated_data):
+        category_name = self.initial_data.get("category_name")
+        category = validated_data.get("category")
+
+        if not category and category_name:
+            category, _ = Category.objects.get_or_create(name=category_name)
+            validated_data["category"] = category
+
+        if not validated_data.get("category"):
+            raise serializers.ValidationError(
+                {"category_id": "category_id or category_name is required."}
+            )
+
+        return super().create(validated_data)
 
 class OrderSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)

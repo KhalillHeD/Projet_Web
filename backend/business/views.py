@@ -39,60 +39,82 @@ class BusinessViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # limit to user's businesses
+        user_businesses = Business.objects.filter(user=self.request.user)
+        qs = Product.objects.filter(business__in=user_businesses)
+
         business_id = self.request.query_params.get("business_id")
         if business_id:
-            return Product.objects.filter(business_id=business_id)
-        return Product.objects.all()
+            qs = qs.filter(business_id=business_id)
+        return qs
 
     def perform_create(self, serializer):
         business_id = self.request.query_params.get("business_id")
         if not business_id:
-            raise ValidationError({"business_id": "business_id is required to create a product."})
+            raise ValidationError(
+                {"business_id": "business_id is required to create a product."}
+            )
 
         try:
-            business = Business.objects.get(id=business_id)
+            # ensure the business belongs to the current user
+            business = Business.objects.get(id=business_id, user=self.request.user)
         except Business.DoesNotExist:
-            raise ValidationError({"business_id": "Business not found."})
+            raise ValidationError(
+                {"business_id": "Business not found or unauthorized."}
+            )
 
         serializer.save(business=business)
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    filterset_fields = ['status', 'created_at']
+    permission_classes = [permissions.IsAuthenticated]
+    filterset_fields = ["status", "created_at"]
+
+    def get_queryset(self):
+        user_businesses = Business.objects.filter(user=self.request.user)
+        return Order.objects.filter(product__business__in=user_businesses)
 
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        user_businesses = Business.objects.filter(user=self.request.user)
+        qs = Transaction.objects.filter(business__in=user_businesses)
         business_id = self.request.query_params.get("business_id")
         if business_id:
-            return Transaction.objects.filter(business_id=int(business_id))
-        return Transaction.objects.all()
+            qs = qs.filter(business_id=int(business_id))
+        return qs
 
     def perform_create(self, serializer):
         business_id = self.request.query_params.get("business_id")
         if not business_id:
             raise ValidationError({"business_id": "This query param is required"})
-        business = Business.objects.get(id=int(business_id))
+        try:
+            business = Business.objects.get(id=int(business_id), user=self.request.user)
+        except Business.DoesNotExist:
+            raise ValidationError({"business_id": "Business not found or unauthorized."})
         serializer.save(business=business)
 
 class InvoiceViewSet(viewsets.ModelViewSet):
-    queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        business_id = self.request.query_params.get('business')
+        user_businesses = Business.objects.filter(user=self.request.user)
+        qs = Invoice.objects.filter(business__in=user_businesses)
+        business_id = self.request.query_params.get("business")
         if business_id:
-            return self.queryset.filter(business__id=business_id)
-        return self.queryset
+            qs = qs.filter(business__id=business_id)
+        return qs
     
 @api_view(['GET'])
 def invoice_pdf(request, pk):

@@ -23,8 +23,27 @@ class ProductSerializer(serializers.ModelSerializer):
             "category_name",
             "image",
             "is_available",
+            "initial_quantity",
             "created_at",
         ]
+        extra_kwargs = {
+            "category": {"required": False},
+        }
+
+    def create(self, validated_data):
+        category_data = self.initial_data.get("category_name")
+        category = validated_data.get("category")
+
+        if not category and category_data:
+            category, _ = Category.objects.get_or_create(name=category_data)
+            validated_data["category"] = category
+
+        if not validated_data.get("category"):
+            raise serializers.ValidationError(
+                {"category": "Category ID or category_name is required."}
+            )
+
+        return super().create(validated_data)
 
 class OrderSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name", read_only=True)

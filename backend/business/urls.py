@@ -3,12 +3,12 @@ from rest_framework.routers import DefaultRouter
 from .views import ProductViewSet, CategoryViewSet,TransactionViewSet, OrderViewSet , BusinessViewSet , InvoiceViewSet , invoice_pdf, contact_us
 
 router = DefaultRouter()
-router.register(r'products', ProductViewSet)
-router.register(r'categories', CategoryViewSet)
-router.register(r'orders', OrderViewSet)
+router.register(r'products', ProductViewSet, basename='product')
+router.register(r'categories', CategoryViewSet, basename='category')
+router.register(r'orders', OrderViewSet, basename='order')
 router.register(r'businesses', BusinessViewSet, basename='business')
 router.register(r"transactions", TransactionViewSet, basename="transactions")
-router.register(r'invoices', InvoiceViewSet)
+router.register(r'invoices', InvoiceViewSet, basename='invoice')
 
 urlpatterns = [
 

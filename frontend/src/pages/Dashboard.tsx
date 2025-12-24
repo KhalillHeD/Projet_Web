@@ -12,11 +12,7 @@ import { Sidebar } from "../layouts/Sidebar";
 import { Breadcrumb } from "../layouts/Breadcrumb";
 import { KPICard } from "../components/KPICard";
 import { ChartCard } from "../components/ChartCard";
-import { QuickActionBar } from "../components/QuickActionBar";
-import { TimelineFeed } from "../components/TimelineFeed";
-import { Modal } from "../components/Modal";
 import { Button } from "../components/Button";
-import { Input } from "../components/Input";
 import { useAuth } from "../context/AuthContext";
 
 interface DashboardProps {
@@ -62,8 +58,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const { accessToken } = useAuth();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [showTransactionModal, setShowTransactionModal] = useState(false);
-  const [showStockModal, setShowStockModal] = useState(false);
 
   const [business, setBusiness] = useState<Business | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -136,7 +130,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }, [businessId, accessToken]);
 
   // Derived metrics
-  const { totalRevenue, monthlyRevenue, pendingInvoices, lowStockItemsCount } =
+  const { totalRevenue, monthlyRevenue, pendingInvoices, lowStockItems } =
     useMemo(() => {
       const paidInvoiceAsIncome: Transaction[] = invoices
         .filter((i) => i.status === "paid")
@@ -229,27 +223,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
     );
   }, [transactions, invoices]);
 
-  const handleQuickAction = (action: string) => {
-    switch (action) {
-      case "add-transaction":
-        setShowTransactionModal(true);
-        break;
-      case "add-stock":
-        setShowStockModal(true);
-        break;
-      case "generate-invoice":
-        onNavigate(`/business/${businessId}/billing/new`);
-        break;
-      case "view-transactions":
-        onNavigate(`/business/${businessId}/transactions`);
-        break;
-      case "view-stock":
-        onNavigate(`/business/${businessId}/stock`);
-        break;
-      default:
-        break;
-    }
-  };
 
   if (loading)
     return (
@@ -276,14 +249,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
       />
 
       <div
-        className={`transition-all duration-300 ${
-          sidebarOpen ? "ml-64" : "ml-20"
-        } p-8`}
+        className={`transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${sidebarOpen ? "ml-72" : "ml-32"
+          } p-10`}
       >
         <div className="max-w-7xl mx-auto">
           {/* Header / Breadcrumb */}
-          <div className="flex items-center justify-between mb-8 animate-fade-in">
-            <div>
+          <div className="flex items-center justify-between mb-12 animate-fade-in">
+            <div className="space-y-3">
               <Breadcrumb
                 items={[
                   { label: "Home", path: "/" },
@@ -292,24 +264,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 ]}
                 onNavigate={onNavigate}
               />
-              <div className="flex items-center gap-3 mt-2">
+              <div className="flex items-center gap-5 mt-4">
                 {business?.logo && (
-                  <img
-                    src={business.logo}
-                    alt="logo"
-                    className="w-12 h-12 rounded-lg object-cover"
-                  />
+                  <div className="p-1 rounded-2xl bg-white shadow-sm border border-slate-100">
+                    <img
+                      src={business.logo}
+                      alt="logo"
+                      className="w-14 h-14 rounded-xl object-cover"
+                    />
+                  </div>
                 )}
                 <div>
-                  <h1 className="text-3xl font-bold text-[#0B1A33]">
+                  <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
                     {business?.name}
                   </h1>
-                  <p className="text-gray-600">{business?.tagline}</p>
+                  <p className="text-slate-500 font-medium text-lg mt-1">{business?.tagline}</p>
                 </div>
               </div>
             </div>
             <Button
-              variant="outline"
+              variant="secondary"
               icon={<SettingsIcon size={20} />}
               onClick={() =>
                 onNavigate(`/business/${businessId}/settings`)
@@ -326,7 +300,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               value={`$${totalRevenue.toLocaleString()}`}
               trend={12.5}
               icon={<DollarSign size={28} />}
-              color="from-[#1A6AFF] to-[#3E8BFF]"
+              color="from-blue-600 to-indigo-600"
               delay={0}
             />
             <KPICard
@@ -334,7 +308,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               value={`$${monthlyRevenue.toLocaleString()}`}
               trend={8.3}
               icon={<TrendingUp size={28} />}
-              color="from-[#16C47F] to-[#13ad70]"
+              color="from-emerald-500 to-teal-500"
               delay={100}
             />
             <KPICard
@@ -342,14 +316,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
               value={transactions.length}
               trend={5.2}
               icon={<Receipt size={28} />}
-              color="from-[#FFA726] to-[#f59518]"
+              color="from-amber-400 to-orange-500"
               delay={200}
             />
             <KPICard
               title="Pending Invoices"
               value={pendingInvoices}
               icon={<FileText size={28} />}
-              color="from-[#3E8BFF] to-[#1A6AFF]"
+              color="from-sky-500 to-blue-600"
               delay={300}
             />
           </div>
@@ -358,23 +332,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <KPICard
               title="Stock Alerts"
-              value={lowStockItemsCount}
+              value={lowStockItems}
               icon={<AlertTriangle size={28} />}
-              color="from-[#EF5350] to-[#e53935]"
+              color="from-rose-500 to-red-600"
               delay={400}
             />
             <KPICard
               title="Total Invoices"
               value={invoices.length}
               icon={<FileText size={28} />}
-              color="from-[#16C47F] to-[#13ad70]"
+              color="from-teal-500 to-emerald-600"
               delay={500}
             />
             <KPICard
               title="Stock Items"
               value={stockItems.length}
               icon={<Package size={28} />}
-              color="from-[#FFA726] to-[#f59518]"
+              color="from-orange-400 to-amber-500"
               delay={600}
             />
             <KPICard
@@ -382,7 +356,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               value={`$${totalExpenses.toLocaleString()}`}
               trend={-3.2}
               icon={<DollarSign size={28} />}
-              color="from-[#EF5350] to-[#e53935]"
+              color="from-rose-600 to-red-700"
               delay={700}
             />
           </div>
@@ -401,107 +375,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
             />
           </div>
 
-          {/* Quick Actions */}
-          <div className="mb-8">
-            <h3 className="text-xl font-bold text-[#0B1A33] mb-4">
-              Quick Actions
-            </h3>
-            <QuickActionBar onAction={handleQuickAction} />
-          </div>
 
           {/* Timeline Feed */}
-          <TimelineFeed activities={revenueVsExpenses} />
+          {/* <TimelineFeed activities={revenueVsExpenses} /> */}
         </div>
       </div>
 
-      {/* Transaction Modal (still UI-only; you can wire POST later) */}
-      <Modal
-        isOpen={showTransactionModal}
-        onClose={() => setShowTransactionModal(false)}
-        title="Add New Transaction"
-        size="md"
-      >
-        <form className="space-y-4">
-          <Input
-            label="Description"
-            placeholder="Enter transaction description"
-            required
-          />
-          <Input
-            label="Amount"
-            type="number"
-            placeholder="0.00"
-            required
-          />
-          <div>
-            <label className="block text-sm font-medium text-[#0B1A33] mb-2">
-              Type
-            </label>
-            <select className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#1A6AFF] focus:outline-none">
-              <option>Income</option>
-              <option>Expense</option>
-            </select>
-          </div>
-          <Input label="Category" placeholder="Enter category" required />
-          <Input label="Date" type="date" required />
-          <div className="flex gap-3">
-            <Button variant="primary" className="flex-1">
-              Add Transaction
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowTransactionModal(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Stock Modal (UI-only; hook to /api/stock-items/ if needed) */}
-      <Modal
-        isOpen={showStockModal}
-        onClose={() => setShowStockModal(false)}
-        title="Add Stock Item"
-        size="md"
-      >
-        <form className="space-y-4">
-          <Input label="Item Name" placeholder="Enter item name" required />
-          <Input label="SKU" placeholder="Enter SKU" required />
-          <Input
-            label="Quantity"
-            type="number"
-            placeholder="0"
-            required
-          />
-          <Input
-            label="Min Quantity"
-            type="number"
-            placeholder="0"
-            required
-          />
-          <Input
-            label="Price"
-            type="number"
-            placeholder="0.00"
-            required
-          />
-          <Input label="Category" placeholder="Enter category" required />
-          <div className="flex gap-3">
-            <Button variant="success" className="flex-1">
-              Add Item
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowStockModal(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 };

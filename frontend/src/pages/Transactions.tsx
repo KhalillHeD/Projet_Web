@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, TrendingUp, TrendingDown } from "lucide-react";
+import { Plus, Search, TrendingUp, TrendingDown, Trash2 } from "lucide-react";
 import { Sidebar } from "../layouts/Sidebar";
 import { Breadcrumb } from "../layouts/Breadcrumb";
 import { Card } from "../components/Card";
@@ -137,6 +137,40 @@ export const Transactions: React.FC<TransactionsProps> = ({
     }
   };
 
+  const handleDeleteTransaction = async (transactionId: number) => {
+    if (!accessToken) {
+      alert("Not authenticated.");
+      return;
+    }
+
+    if (!window.confirm("Are you sure you want to delete this transaction?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/transactions/${transactionId}/`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        console.error("Error deleting transaction:", await res.text());
+        alert("Error deleting transaction.");
+        return;
+      }
+
+      await fetchTransactions();
+    } catch (err) {
+      console.error("Error deleting transaction:", err);
+      alert("Error deleting transaction.");
+    }
+  };
+
   const filteredTransactions = transactions.filter((t) => {
     const matchesSearch =
       (t.description || "")
@@ -185,9 +219,8 @@ export const Transactions: React.FC<TransactionsProps> = ({
       />
 
       <div
-        className={`transition-all duration-300 ${
-          sidebarOpen ? "ml-64" : "ml-20"
-        } p-8`}
+        className={`transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-20"
+          } p-8`}
       >
         <div className="max-w-7xl mx-auto">
           <div className="mb-8 animate-fade-in">
@@ -231,31 +264,28 @@ export const Transactions: React.FC<TransactionsProps> = ({
               <div className="flex gap-2">
                 <button
                   onClick={() => setFilterType("all")}
-                  className={`px-4 py-3 rounded-xl ${
-                    filterType === "all"
+                  className={`px-4 py-3 rounded-xl ${filterType === "all"
                       ? "bg-[#1A6AFF] text-white"
                       : "bg-white border-gray-200 border-2"
-                  }`}
+                    }`}
                 >
                   All
                 </button>
                 <button
                   onClick={() => setFilterType("income")}
-                  className={`px-4 py-3 rounded-xl ${
-                    filterType === "income"
+                  className={`px-4 py-3 rounded-xl ${filterType === "income"
                       ? "bg-[#16C47F] text-white"
                       : "bg-white border-gray-200 border-2"
-                  }`}
+                    }`}
                 >
                   Income
                 </button>
                 <button
                   onClick={() => setFilterType("expense")}
-                  className={`px-4 py-3 rounded-xl ${
-                    filterType === "expense"
+                  className={`px-4 py-3 rounded-xl ${filterType === "expense"
                       ? "bg-[#EF5350] text-white"
                       : "bg-white border-gray-200 border-2"
-                  }`}
+                    }`}
                 >
                   Expense
                 </button>
@@ -274,11 +304,10 @@ export const Transactions: React.FC<TransactionsProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
                     <div
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                        t.type === "income"
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center ${t.type === "income"
                           ? "bg-gradient-to-br from-[#16C47F] to-[#13ad70]"
                           : "bg-gradient-to-br from-[#EF5350] to-[#e53935]"
-                      }`}
+                        }`}
                     >
                       {t.type === "income" ? (
                         <TrendingUp size={24} className="text-white" />
@@ -296,22 +325,37 @@ export const Transactions: React.FC<TransactionsProps> = ({
                     </div>
                   </div>
                   <div className="text-right flex items-center gap-4">
-                    <p
-                      className={`text-2xl font-bold ${
-                        t.type === "income"
-                          ? "text-[#16C47F]"
-                          : "text-[#EF5350]"
-                      }`}
-                    >
-                      {t.type === "income" ? "+" : "-"}${t.amount}
-                    </p>
-                    <span
-                      className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        t.status
-                      )}`}
-                    >
-                      {t.status}
-                    </span>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="flex items-center gap-4">
+                        <p
+                          className={`text-2xl font-bold ${t.type === "income"
+                              ? "text-[#16C47F]"
+                              : "text-[#EF5350]"
+                            }`}
+                        >
+                          {t.type === "income" ? "+" : "-"}${t.amount}
+                        </p>
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            t.status
+                          )}`}
+                        >
+                          {t.status}
+                        </span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-[#EF5350] border-[#EF5350] hover:bg-[#EF5350]/10"
+                        icon={<Trash2 size={16} />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTransaction(t.id);
+                        }}
+                      >
+                        {""}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Card>
