@@ -111,7 +111,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         top: `${y}%`,
         width: `${size}px`,
         height: `${size}px`,
-        animation: `particle-float 8s ease-in-out ${delay}s infinite`,
+        animation: `particle-float 5000s ease-in-out ${delay}s infinite`,
       }}
     />
   );
@@ -222,19 +222,19 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         @keyframes particle-float {
           0%, 100% {
             transform: translateY(0px) translateX(0px) scale(1);
-            opacity: 0.6;
+            opacity: 0.5;
           }
           25% {
-            transform: translateY(-20px) translateX(10px) scale(1.1);
-            opacity: 0.8;
+            transform: translateY(-6px) translateX(3px) scale(1.02);
+            opacity: 0.6;
           }
           50% {
-            transform: translateY(-40px) translateX(-10px) scale(0.9);
-            opacity: 0.4;
+            transform: translateY(-12px) translateX(-3px) scale(0.98);
+            opacity: 0.45;
           }
           75% {
-            transform: translateY(-20px) translateX(5px) scale(1.05);
-            opacity: 0.7;
+            transform: translateY(-6px) translateX(2px) scale(1.01);
+            opacity: 0.55;
           }
         }
 
@@ -301,7 +301,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           position: fixed;
           pointer-events: none;
           z-index: 1;
-          animation: expand-glow 0.6s ease-out forwards;
+          animation: expand-glow 10s ease-out forwards;
           border-radius: 50%;
           background: radial-gradient(circle, rgba(26, 106, 255, 0.6) 0%, rgba(26, 106, 255, 0.3) 50%, transparent 70%);
         }
@@ -500,7 +500,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             </div>
 
             <h1
-              className={`text-5xl md:text-6xl lg:text-7xl font-bold text-[#0B1A33] mb-6 ${
+              className={`text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 ${
                 isPageLoaded ? "animate-fade-in" : "opacity-0"
               }`}
             >
@@ -512,7 +512,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             </h1>
 
             <p
-              className={`text-xl text-gray-600 mb-8 max-w-3xl mx-auto block ${
+              className={`text-xl text-gray-300 mb-8 max-w-3xl mx-auto block ${
                 isPageLoaded ? "animate-fade-in stagger-1" : "opacity-0"
               }`}
             >
@@ -630,7 +630,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative z-10 block w-full clear-both"
       >
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16 parallax-slow block w-full clear-both">
+          <div className="text-center mb-16 block w-full clear-both">
             <div className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-[#1A6AFF]/10 to-[#3E8BFF]/10 rounded-full hover:shadow-lg hover:shadow-[#1A6AFF]/20 transition-all duration-300">
               <span className="text-[#1A6AFF] font-semibold">Features</span>
             </div>
@@ -846,14 +846,14 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 {
                   icon: Phone,
                   title: "Call Us",
-                  lines: ["+216 26 805 311", "Mon-Fri 9am-6pm EST"],
+                  lines: ["+21695644062", "Mon-Fri 9am-6pm EST"],
                   color: "from-[#16C47F] to-[#13ad70]",
                   delay: "stagger-2",
                 },
                 {
                   icon: MapPin,
                   title: "Visit Us",
-                  lines: ["Technopole Ghazella", "Ariana, Tunisia"],
+                  lines: ["Supcom Elghazela", "Ariana, Tunisia"],
                   color: "from-[#FFA726] to-[#f59518]",
                   delay: "stagger-3",
                 },

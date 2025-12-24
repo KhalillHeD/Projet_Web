@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Menu,
   X,
@@ -21,7 +21,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -38,10 +48,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     onNavigate("/");
   };
 
+  const isTransparent = transparent && !isScrolled;
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        transparent
+        isTransparent
           ? "bg-transparent"
           : "bg-white/95 backdrop-blur-sm shadow-md"
       }`}
@@ -55,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="w-10 h-10 bg-gradient-to-br from-[#1A6AFF] to-[#3E8BFF] rounded-xl flex items-center justify-center">
               <Building2 size={24} className="text-white" />
             </div>
-            <span className="text-2xl font-bold text-[#0B1A33]">
+            <span className={`text-2xl font-bold ${isTransparent ? 'text-white' : 'text-[#0B1A33]'}`}>
               BizManager
             </span>
           </div>
@@ -64,19 +76,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="hidden md:flex items-center gap-8">
             <button
               onClick={() => scrollToSection("services")}
-              className="text-[#0B1A33] hover:text-[#1A6AFF] transition-colors duration-200 font-medium"
+              className={`${isTransparent ? 'text-white hover:text-[#1A6AFF]' : 'text-[#0B1A33] hover:text-[#1A6AFF]'} transition-colors duration-200 font-medium`}
             >
               Services
             </button>
             <button
               onClick={() => scrollToSection("about")}
-              className="text-[#0B1A33] hover:text-[#1A6AFF] transition-colors duration-200 font-medium"
+              className={`${isTransparent ? 'text-white hover:text-[#1A6AFF]' : 'text-[#0B1A33] hover:text-[#1A6AFF]'} transition-colors duration-200 font-medium`}
             >
               About
             </button>
             <button
               onClick={() => scrollToSection("contact")}
-              className="text-[#0B1A33] hover:text-[#1A6AFF] transition-colors duration-200 font-medium"
+              className={`${isTransparent ? 'text-white hover:text-[#1A6AFF]' : 'text-[#0B1A33] hover:text-[#1A6AFF]'} transition-colors duration-200 font-medium`}
             >
               Contact
             </button>
@@ -138,7 +150,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Mobile menu toggle */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className={`md:hidden p-2 rounded-lg transition-colors ${isTransparent ? 'hover:bg-white/10 text-white' : 'hover:bg-gray-100 text-gray-800'}`}
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
