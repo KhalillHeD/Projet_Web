@@ -73,6 +73,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "is_available",
             "initial_quantity",
             "created_at",
+            "updated_at",
         ]
 
     def create(self, validated_data):
