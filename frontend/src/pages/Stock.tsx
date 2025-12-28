@@ -23,6 +23,7 @@ interface DjangoProduct {
   is_available: boolean;
   image: string | null;
   quantity?: number;
+  initial_quantity: number;
   created_at: string;
 }
 
@@ -47,23 +48,6 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
   const [products, setProducts] = useState<DjangoProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [productQuantities, setProductQuantities] = useState<{
-    [key: number]: number;
-  }>(() => {
-    const saved = localStorage.getItem("productQuantities");
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  const updateProductQuantity = (productId: number, quantity: number) => {
-    setProductQuantities((prev) => {
-      const newQuantities = { ...prev, [productId]: quantity };
-      localStorage.setItem(
-        "productQuantities",
-        JSON.stringify(newQuantities)
-      );
-      return newQuantities;
-    });
-  };
 
   const fetchProducts = async () => {
     if (!accessToken) {
@@ -147,8 +131,7 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
         return;
       }
 
-      const newProduct = await res.json();
-      updateProductQuantity(newProduct.id, quantity);
+      await res.json();
       await fetchProducts();
       setShowModal(false);
     } catch (err) {
@@ -199,8 +182,8 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
     name: product.name,
     sku: `PROD-${product.id.toString().padStart(4, "0")}`,
     category: product.category_name,
-    quantity: productQuantities[product.id] || 10,
-    minQuantity: 0,
+    quantity: product.initial_quantity,
+    minQuantity: 5,
     price: parseFloat(product.price),
     lastUpdated: new Date(product.created_at).toLocaleDateString("fr-FR"),
   }));

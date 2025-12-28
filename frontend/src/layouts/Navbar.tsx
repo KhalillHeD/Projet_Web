@@ -52,43 +52,42 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        isTransparent
-          ? "bg-transparent"
-          : "bg-white/95 backdrop-blur-sm shadow-md"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${isTransparent
+        ? "bg-transparent"
+        : "bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm"
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div
-            className="flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-2.5 cursor-pointer group"
             onClick={() => onNavigate("/")}
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-[#1A6AFF] to-[#3E8BFF] rounded-xl flex items-center justify-center">
-              <Building2 size={24} className="text-white" />
+            <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 transform transition-transform group-hover:scale-110 group-hover:rotate-3">
+              <Building2 size={22} className="text-white" />
             </div>
-            <span className={`text-2xl font-bold ${isTransparent ? 'text-white' : 'text-[#0B1A33]'}`}>
+            <span className={`text-2xl font-black tracking-tight ${isTransparent ? 'text-white' : 'text-slate-900'}`}>
               BizManager
             </span>
           </div>
 
           {/* Desktop menu */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-10">
             <button
               onClick={() => scrollToSection("services")}
-              className={`${isTransparent ? 'text-white hover:text-[#1A6AFF]' : 'text-[#0B1A33] hover:text-[#1A6AFF]'} transition-colors duration-200 font-medium`}
+              className={`${isTransparent ? 'text-white/80 hover:text-white' : 'text-slate-600 hover:text-blue-600'} transition-all duration-300 font-bold text-sm tracking-wide uppercase`}
             >
               Services
             </button>
             <button
               onClick={() => scrollToSection("about")}
-              className={`${isTransparent ? 'text-white hover:text-[#1A6AFF]' : 'text-[#0B1A33] hover:text-[#1A6AFF]'} transition-colors duration-200 font-medium`}
+              className={`${isTransparent ? 'text-white/80 hover:text-white' : 'text-slate-600 hover:text-blue-600'} transition-all duration-300 font-bold text-sm tracking-wide uppercase`}
             >
               About
             </button>
             <button
               onClick={() => scrollToSection("contact")}
-              className={`${isTransparent ? 'text-white hover:text-[#1A6AFF]' : 'text-[#0B1A33] hover:text-[#1A6AFF]'} transition-colors duration-200 font-medium`}
+              className={`${isTransparent ? 'text-white/80 hover:text-white' : 'text-slate-600 hover:text-blue-600'} transition-all duration-300 font-bold text-sm tracking-wide uppercase`}
             >
               Contact
             </button>
@@ -97,53 +96,61 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen((v) => !v)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-sm text-gray-800 transition-colors"
+                  className={`flex items-center gap-3 px-5 py-2.5 rounded-2xl border transition-all duration-300 font-bold text-sm ${isTransparent
+                      ? "bg-white/10 border-white/20 text-white hover:bg-white/20"
+                      : "bg-slate-50 border-slate-100 text-slate-700 hover:bg-white hover:shadow-lg hover:shadow-blue-500/10"
+                    }`}
                 >
-                  <UserIcon size={18} />
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center text-[10px] text-white">
+                    {user.username.charAt(0).toUpperCase()}
+                  </div>
                   <span>{user.username}</span>
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-100 py-1 text-sm z-50">
+                  <div className="absolute right-0 mt-4 w-56 glass rounded-[2rem] p-3 shadow-2xl animate-fade-in z-50 border border-white/20">
+                    <div className="px-4 py-3 mb-2 border-b border-white/10">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Signed in as</p>
+                      <p className="text-sm font-bold text-slate-900 truncate">{user.email}</p>
+                    </div>
                     <button
                       onClick={() => {
                         setIsProfileOpen(false);
                         onNavigate("/profile");
                       }}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center gap-2"
+                      className="w-full text-left px-4 py-3 rounded-2xl hover:bg-blue-500 hover:text-white flex items-center gap-3 text-slate-600 font-bold text-sm transition-all group"
                     >
-                      <UserIcon size={16} />
+                      <UserIcon size={16} className="group-hover:text-white transition-colors" />
                       <span>View profile</span>
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-50 flex items-center gap-2 text-red-600"
+                      className="w-full text-left px-4 py-3 rounded-2xl hover:bg-rose-500 hover:text-white flex items-center gap-3 text-rose-600 font-bold text-sm transition-all group"
                     >
-                      <LogOut size={16} />
+                      <LogOut size={16} className="group-hover:text-white transition-colors" />
                       <span>Logout</span>
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <>
-                <Button
+              <div className="flex items-center gap-5">
+                <button
                   onClick={() => onNavigate("/login")}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1"
+                  className={`font-bold text-sm transition-all ${isTransparent ? "text-white/80 hover:text-white" : "text-slate-600 hover:text-blue-600"
+                    }`}
                 >
-                  <LogIn size={16} />
                   Login
-                </Button>
+                </button>
                 <Button
-                  onClick={() => onNavigate("/businesses")}
+                  onClick={() => onNavigate(user ? "/businesses" : "/signup")}
                   variant="primary"
                   size="sm"
+                  className="px-8 shadow-lg shadow-blue-500/20"
                 >
                   Get Started
                 </Button>
-              </>
+              </div>
             )}
           </div>
 

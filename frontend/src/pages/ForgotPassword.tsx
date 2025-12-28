@@ -21,25 +21,25 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onNavigate }) =>
     setLoading(true);
 
     try {
-        const res = await fetch("http://localhost:8000/api/auth/password-reset/", {
+      const res = await fetch("http://127.0.0.1:8000/api/auth/password-reset/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
-        });
+      });
 
-        if (!res.ok) {
+      if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         setError(data.detail || "Something went wrong. Please try again.");
-        } else {
+      } else {
         setStatus("If an account exists with that email, a reset link has been sent.");
-        }
+      }
     } catch (err) {
-        console.error(err);
-        setError("Network error. Please try again.");
+      console.error(err);
+      setError("Network error. Please try again.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-    };
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-[#1A6AFF]/10 via-[#3E8BFF]/5 to-transparent">

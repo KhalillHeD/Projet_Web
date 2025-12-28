@@ -17,7 +17,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({ title, data, type }) => {
   // Ensure we always have at least one data point
   const safeData: ChartData[] = data.length > 0 ? data : [{ month: 'N/A', revenue: 0, expenses: 0 }];
 
-  const maxValue = Math.max(...safeData.map((d) => Math.max(d.revenue, d.expenses || 0)));
+  const maxValue = Math.max(...safeData.map((d) => Math.max(d.revenue, d.expenses || 0)), 1);
 
   return (
     <Card className="animate-fade-in">
@@ -37,24 +37,24 @@ export const ChartCard: React.FC<ChartCardProps> = ({ title, data, type }) => {
                 stroke="none"
                 points={safeData
                   .map((d, i) => {
-                    const x = (i / (safeData.length - 1)) * 800;
+                    const x = safeData.length > 1 ? (i / (safeData.length - 1)) * 800 : 400;
                     const y = 250 - (d.revenue / maxValue) * 200;
                     return `${x},${y}`;
                   })
-                  .join(' ') + ' 800,250 0,250'}
+                  .join(' ') + (safeData.length > 1 ? ' 800,250 0,250' : ' 400,250 400,250')}
               />
               <polyline
                 fill="none"
                 stroke="#1A6AFF"
                 strokeWidth="3"
                 points={safeData.map((d, i) => {
-                  const x = (i / (safeData.length - 1)) * 800;
+                  const x = safeData.length > 1 ? (i / (safeData.length - 1)) * 800 : 400;
                   const y = 250 - (d.revenue / maxValue) * 200;
                   return `${x},${y}`;
                 }).join(' ')}
               />
               {safeData.map((d, i) => {
-                const x = (i / (safeData.length - 1)) * 800;
+                const x = safeData.length > 1 ? (i / (safeData.length - 1)) * 800 : 400;
                 const y = 250 - (d.revenue / maxValue) * 200;
                 return (
                   <circle
@@ -68,9 +68,11 @@ export const ChartCard: React.FC<ChartCardProps> = ({ title, data, type }) => {
                 );
               })}
             </svg>
-            <div className="flex justify-between mt-4 text-sm text-gray-600">
+            <div className="flex justify-between mt-4 text-[10px] md:text-xs text-gray-500 px-2 font-medium">
               {safeData.map((d, i) => (
-                <span key={i}>{d.month}</span>
+                <span key={i} className="flex-1 text-center">
+                  {d.month}
+                </span>
               ))}
             </div>
           </div>

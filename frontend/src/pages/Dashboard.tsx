@@ -12,6 +12,7 @@ import { Sidebar } from "../layouts/Sidebar";
 import { Breadcrumb } from "../layouts/Breadcrumb";
 import { KPICard } from "../components/KPICard";
 import { ChartCard } from "../components/ChartCard";
+import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import { useAuth } from "../context/AuthContext";
 
@@ -29,7 +30,7 @@ interface Business {
 
 interface Transaction {
   id: number;
-  businessId: string;
+  business: number;
   amount: number;
   type: "income" | "expense";
   date: string;
@@ -38,17 +39,17 @@ interface Transaction {
 
 interface Invoice {
   id: number;
-  businessId: string;
-  amount?: number;
+  business: number;
+  amount: number;
   status: "paid" | "unpaid" | "pending" | "overdue";
-  dueDate?: string;
+  dueDate: string;
 }
 
 interface StockItem {
   id: number;
-  businessId: string;
-  quantity: number;
-  minQuantity: number;
+  business: number;
+  name: string;
+  initial_quantity: number;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -97,7 +98,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             { headers }
           ),
           fetch(
-            `http://127.0.0.1:8000/api/stock-items/?business=${businessId}`,
+            `http://127.0.0.1:8000/api/products/?business_id=${businessId}`,
             { headers }
           ),
         ]);
@@ -130,14 +131,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
   }, [businessId, accessToken]);
 
   // Derived metrics
-  const { totalRevenue, monthlyRevenue, pendingInvoices, lowStockItems } =
+  const { totalRevenue, monthlyRevenue, pendingInvoices, lowProducts } =
     useMemo(() => {
       const paidInvoiceAsIncome: Transaction[] = invoices
         .filter((i) => i.status === "paid")
         .map((i) => ({
           id: i.id,
-          businessId: i.businessId.toString(),
-          amount: i.amount || 0,
+          business: i.business,
+          amount: typeof i.amount === 'string' ? parseFloat(i.amount) : (i.amount || 0),
           type: "income",
           date: i.dueDate || new Date().toISOString(),
           category: "Invoice",
@@ -145,34 +146,43 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       const allIncome = [
         ...transactions.filter(
-          (t) => t.type === "income" && typeof t.amount === "number"
-        ),
+          (t) => t.type === "income"
+        ).map(t => ({
+          ...t,
+          amount: typeof t.amount === 'string' ? parseFloat(t.amount) : (t.amount || 0)
+        })),
         ...paidInvoiceAsIncome,
       ];
 
       const totalRevenueVal = allIncome.reduce(
-        (sum, t) => sum + (t.amount || 0),
+        (sum, t) => sum + t.amount,
         0
       );
 
-      const currentMonth = new Date().getMonth();
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
       const monthlyRevenueVal = allIncome
-        .filter((t) => new Date(t.date).getMonth() === currentMonth)
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
+        .filter((t) => {
+          const d = new Date(t.date);
+          return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        })
+        .reduce((sum, t) => sum + t.amount, 0);
 
       const pendingInvoicesCount = invoices.filter(
         (i) => i.status === "unpaid" || i.status === "pending"
       ).length;
 
-      const lowStockCount = stockItems.filter(
-        (s) => s.quantity < s.minQuantity
-      ).length;
+      const lowProductsList = stockItems.filter(
+        (s) => s.initial_quantity < 5
+      );
 
       return {
         totalRevenue: totalRevenueVal,
         monthlyRevenue: monthlyRevenueVal,
         pendingInvoices: pendingInvoicesCount,
-        lowStockItems: lowStockCount,
+        lowProducts: lowProductsList,
       };
     }, [transactions, invoices, stockItems]);
 
@@ -180,7 +190,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     () =>
       transactions
         .filter((t) => t.type === "expense")
-        .reduce((sum, t) => sum + (t.amount || 0), 0),
+        .reduce((sum, t) => sum + (typeof t.amount === 'string' ? parseFloat(t.amount) : (t.amount || 0)), 0),
     [transactions]
   );
 
@@ -190,37 +200,51 @@ export const Dashboard: React.FC<DashboardProps> = ({
       .filter((i) => i.status === "paid")
       .map((i) => ({
         id: i.id,
-        businessId: i.businessId.toString(),
-        amount: i.amount || 0,
+        business: i.business,
+        amount: typeof i.amount === 'string' ? parseFloat(i.amount) : (i.amount || 0),
         type: "income",
         date: i.dueDate || new Date().toISOString(),
         category: "Invoice",
       }));
 
-    const allItems: { date: string; amount: number; type: "income" | "expense" }[] =
-      [...transactions, ...paidInvoiceAsIncome];
+    const allItems = [
+      ...transactions.map(t => ({
+        ...t,
+        amount: typeof t.amount === 'string' ? parseFloat(t.amount) : (t.amount || 0)
+      })),
+      ...paidInvoiceAsIncome
+    ];
 
-    const monthMap: Record<
-      string,
-      { month: string; revenue: number; expenses: number }
-    > = {};
+    const result = [];
+    const currentYear = new Date().getFullYear();
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-    allItems.forEach((item) => {
-      const date = new Date(item.date);
-      const monthKey = date.toLocaleString("default", { month: "short" });
-      if (!monthMap[monthKey]) {
-        monthMap[monthKey] = { month: monthKey, revenue: 0, expenses: 0 };
-      }
-      if (item.type === "income") monthMap[monthKey].revenue += item.amount;
-      if (item.type === "expense") monthMap[monthKey].expenses += item.amount;
-    });
+    // Generate monthly data for the entire current year
+    for (let i = 0; i < 12; i++) {
+      const monthLabel = months[i];
 
-    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const monthIncome = allItems
+        .filter(item => {
+          const itemDate = new Date(item.date);
+          return itemDate.getMonth() === i && itemDate.getFullYear() === currentYear && item.type === "income";
+        })
+        .reduce((sum, item) => sum + item.amount, 0);
 
-    return Object.values(monthMap).sort(
-      (a, b) =>
-        MONTHS.indexOf(a.month) - MONTHS.indexOf(b.month)
-    );
+      const monthExpense = allItems
+        .filter(item => {
+          const itemDate = new Date(item.date);
+          return itemDate.getMonth() === i && itemDate.getFullYear() === currentYear && item.type === "expense";
+        })
+        .reduce((sum, item) => sum + item.amount, 0);
+
+      result.push({
+        month: monthLabel,
+        revenue: monthIncome,
+        expenses: monthExpense,
+      });
+    }
+
+    return result;
   }, [transactions, invoices]);
 
 
@@ -332,7 +356,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <KPICard
               title="Stock Alerts"
-              value={lowStockItems}
+              value={lowProducts.length}
               icon={<AlertTriangle size={28} />}
               color="from-rose-500 to-red-600"
               delay={400}
@@ -360,6 +384,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
               delay={700}
             />
           </div>
+          {/* Low Stock Detailed Alerts */}
+          {lowProducts.length > 0 && (
+            <Card className="mb-8 bg-rose-50 border-rose-100 animate-fade-in">
+              <div className="flex items-center gap-3 mb-4">
+                <AlertTriangle className="text-rose-600" size={24} />
+                <h3 className="text-lg font-bold text-rose-900">Critical Stock Alerts</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {lowProducts.map(product => (
+                  <div key={product.id} className="flex items-center justify-between p-3 bg-white rounded-xl border border-rose-100 shadow-sm">
+                    <span className="font-medium text-slate-700">{product.name}</span>
+                    <span className="px-3 py-1 bg-rose-100 text-rose-700 rounded-lg text-sm font-bold">
+                      {product.initial_quantity} left
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
 
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
