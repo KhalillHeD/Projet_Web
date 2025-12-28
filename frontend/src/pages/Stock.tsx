@@ -288,7 +288,7 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
         text: "text-amber-600",
       };
     return {
-      label: "Healthy",
+      label: "Good",
       color: "from-emerald-500 to-teal-600",
       bg: "bg-emerald-50",
       text: "text-emerald-600",
