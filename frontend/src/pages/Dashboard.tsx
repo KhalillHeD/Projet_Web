@@ -255,12 +255,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </p>
     );
 
-  if (error)
+  if (error) {
+    if (error === "Not authenticated.") return null;
     return (
       <p className="text-center mt-20 text-red-500">
         {error}
       </p>
     );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F8FF]">
@@ -322,7 +324,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <KPICard
               title="Total Revenue"
               value={`$${totalRevenue.toLocaleString()}`}
-              trend={12.5}
               icon={<DollarSign size={28} />}
               color="from-blue-600 to-indigo-600"
               delay={0}
@@ -330,7 +331,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <KPICard
               title="Monthly Revenue"
               value={`$${monthlyRevenue.toLocaleString()}`}
-              trend={8.3}
               icon={<TrendingUp size={28} />}
               color="from-emerald-500 to-teal-500"
               delay={100}
@@ -338,7 +338,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <KPICard
               title="Transactions"
               value={transactions.length}
-              trend={5.2}
               icon={<Receipt size={28} />}
               color="from-amber-400 to-orange-500"
               delay={200}
@@ -378,7 +377,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <KPICard
               title="Total Expenses"
               value={`$${totalExpenses.toLocaleString()}`}
-              trend={-3.2}
               icon={<DollarSign size={28} />}
               color="from-rose-600 to-red-700"
               delay={700}

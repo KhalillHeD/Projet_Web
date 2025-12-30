@@ -300,7 +300,10 @@ export const Stock: React.FC<StockProps> = ({ businessId, onNavigate }) => {
   );
 
   if (loading) return <div className="min-h-screen flex justify-center items-center">Loading...</div>;
-  if (error) return <div className="min-h-screen flex justify-center items-center text-rose-500">{error}</div>;
+  if (error) {
+    if (error === "Not authenticated.") return null;
+    return <div className="min-h-screen flex justify-center items-center text-rose-500">{error}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex">

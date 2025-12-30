@@ -80,8 +80,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, currentPath,
                 </button>
                 <button
                   onClick={() => {
-                    setShowAccountMenu(false);
                     logout();
+                    onNavigate('/login');
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-rose-50 hover:text-rose-600 transition-all duration-300 text-slate-600 font-bold text-sm mt-1 group/item"
                 >

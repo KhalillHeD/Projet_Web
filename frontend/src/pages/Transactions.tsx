@@ -201,12 +201,14 @@ export const Transactions: React.FC<TransactionsProps> = ({
       </div>
     );
 
-  if (error)
+  if (error) {
+    if (error === "Not authenticated.") return null;
     return (
       <div className="min-h-screen flex justify-center items-center text-red-500">
         {error}
       </div>
     );
+  }
 
   return (
     <div className="min-h-screen bg-[#F5F8FF]">
@@ -265,8 +267,8 @@ export const Transactions: React.FC<TransactionsProps> = ({
                 <button
                   onClick={() => setFilterType("all")}
                   className={`px-4 py-3 rounded-xl ${filterType === "all"
-                      ? "bg-[#1A6AFF] text-white"
-                      : "bg-white border-gray-200 border-2"
+                    ? "bg-[#1A6AFF] text-white"
+                    : "bg-white border-gray-200 border-2"
                     }`}
                 >
                   All
@@ -274,8 +276,8 @@ export const Transactions: React.FC<TransactionsProps> = ({
                 <button
                   onClick={() => setFilterType("income")}
                   className={`px-4 py-3 rounded-xl ${filterType === "income"
-                      ? "bg-[#16C47F] text-white"
-                      : "bg-white border-gray-200 border-2"
+                    ? "bg-[#16C47F] text-white"
+                    : "bg-white border-gray-200 border-2"
                     }`}
                 >
                   Income
@@ -283,8 +285,8 @@ export const Transactions: React.FC<TransactionsProps> = ({
                 <button
                   onClick={() => setFilterType("expense")}
                   className={`px-4 py-3 rounded-xl ${filterType === "expense"
-                      ? "bg-[#EF5350] text-white"
-                      : "bg-white border-gray-200 border-2"
+                    ? "bg-[#EF5350] text-white"
+                    : "bg-white border-gray-200 border-2"
                     }`}
                 >
                   Expense
@@ -305,8 +307,8 @@ export const Transactions: React.FC<TransactionsProps> = ({
                   <div className="flex items-center gap-4 flex-1">
                     <div
                       className={`w-12 h-12 rounded-xl flex items-center justify-center ${t.type === "income"
-                          ? "bg-gradient-to-br from-[#16C47F] to-[#13ad70]"
-                          : "bg-gradient-to-br from-[#EF5350] to-[#e53935]"
+                        ? "bg-gradient-to-br from-[#16C47F] to-[#13ad70]"
+                        : "bg-gradient-to-br from-[#EF5350] to-[#e53935]"
                         }`}
                     >
                       {t.type === "income" ? (
@@ -329,8 +331,8 @@ export const Transactions: React.FC<TransactionsProps> = ({
                       <div className="flex items-center gap-4">
                         <p
                           className={`text-2xl font-bold ${t.type === "income"
-                              ? "text-[#16C47F]"
-                              : "text-[#EF5350]"
+                            ? "text-[#16C47F]"
+                            : "text-[#EF5350]"
                             }`}
                         >
                           {t.type === "income" ? "+" : "-"}${t.amount}
